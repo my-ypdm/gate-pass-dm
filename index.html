@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="id">
+    <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gate Pass Terminal - Dashboard Piket</title>
+    
+    <meta name="robots" content="noindex, nofollow">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
+
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
+        body { background-color: #f8fafc; color: #334155; display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
+        .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 15px; }
+        
+        .card { background: #ffffff; padding: 18px; border-radius: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
+        
+        .header-card { display: flex; justify-content: space-between; align-items: center; background: #1e293b; color: white; border: none; }
+        .user-info h3 { font-size: 16px; font-weight: 600; color: #f8fafc; }
+        .user-info p { font-size: 12px; color: #94a3b8; }
+        .btn-logout { background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        
+        .time-bar { text-align: center; font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 8px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 5px; }
+        .stat-box { background: #f1f5f9; padding: 10px; border-radius: 10px; text-align: center; }
+        .stat-box span { display: block; font-size: 11px; color: #64748b; font-weight: 500; }
+        .stat-box strong { font-size: 18px; color: #0f172a; }
+
+        .section-title { font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .status-btn { padding: 10px 5px; border: 2px solid #cbd5e1; background: #ffffff; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
+        
+        .status-btn[data-code="H"].active { background: #22c55e; color: white; border-color: #16a34a; }
+        .status-btn[data-code="T1"].active { background: #eab308; color: white; border-color: #ca8a04; }
+        .status-btn[data-code="T2"].active { background: #f97316; color: white; border-color: #ea580c; }
+        .status-btn[data-code="D"].active { background: #a855f7; color: white; border-color: #9333ea; }
+        
+        #reader { width: 100%; border-radius: 12px; overflow: hidden; border: none; background: #000; }
+        
+        /* Preview Card sebelum Submit */
+        #preview-card { background: #eff6ff; border: 2px solid #bfdbfe; border-radius: 12px; padding: 15px; text-align: center; display: none; }
+        #preview-card h4 { color: #1e40af; font-size: 15px; margin-bottom: 8px; }
+        .student-detail { font-size: 16px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+        .student-sub { font-size: 13px; color: #475569; margin-bottom: 4px; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-submit { flex: 2; background: #16a34a; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+        .btn-cancel { flex: 1; background: #64748b; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 600; cursor: pointer; }
+
+        #message { margin-top: 12px; padding: 12px; border-radius: 10px; font-size: 14px; font-weight: 600; text-align: center; display: none; }
+        .success { background-color: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .error { background-color: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+
+        input { width: 100%; padding: 12px; margin-bottom: 12px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 14px; outline: none; }
+        .btn-primary { width: 100%; padding: 12px; background-color: #2563eb; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: 600; cursor: pointer; }
+
+        .hidden { display: none !important; }
+    </style>
+    </head>
+    <body>
+
+    <div class="container">
+
+        <!-- 1. FORM LOGIN -->
+        <div id="login-section" class="card" style="margin-top: 50px;">
+        <h2 style="text-align: center; margin-bottom: 20px; color: #0f172a;">Gate Pass Terminal</h2>
+        <input type="text" id="username" placeholder="Username Petugas" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <button class="btn-primary" id="btn-login" onclick="handleLogin()">Masuk Terminal</button>
+        </div>
+
+        <!-- 2. DASHBOARD PETUGAS & TERMINAL SCANNER -->
+        <div id="dashboard-section" class="hidden" style="display: flex; flex-direction: column; gap: 15px;">
+        
+        <div class="card header-card">
+            <div class="user-info">
+            <h3 id="display-nama">Petugas Piket</h3>
+            <p id="display-role">Piket Gerbang</p>
+            </div>
+            <button class="btn-logout" onclick="handleLogout()">Keluar</button>
+        </div>
+
+        <div class="card">
+            <div class="time-bar" id="live-clock">-</div>
+            <div class="stats-grid">
+            <div class="stat-box">
+                <span>Tepat Waktu</span>
+                <strong id="count-hadir" style="color: #16a34a;">0</strong>
+            </div>
+            <div class="stat-box">
+                <span>Terlambat</span>
+                <strong id="count-telat" style="color: #dc2626;">0</strong>
+            </div>
+            <div class="stat-box">
+                <span>Total Scan</span>
+                <strong id="count-total">0</strong>
+            </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Mode Status Presensi:</div>
+            <div class="status-grid">
+            <button class="status-btn active" data-code="H" onclick="setStatusMode('H')">🟢 H<br><small>Hadir</small></button>
+            <button class="status-btn" data-code="T1" onclick="setStatusMode('T1')">🟡 T1<br><small>Telat 1</small></button>
+            <button class="status-btn" data-code="T2" onclick="setStatusMode('T2')">🟠 T2<br><small>Telat 2</small></button>
+            <button class="status-btn" data-code="D" onclick="setStatusMode('D')">🔵 Disp<br><small>Izin</small></button>
+            </div>
+        </div>
+
+        <!-- SCANNER & PREVIEW CARD -->
+        <div class="card" style="padding: 10px;">
+            <!-- Area Kamera -->
+            <div id="scanner-container">
+            <div id="reader"></div>
+            </div>
+
+            <!-- Card Preview Data Siswa Sebelum Submit -->
+            <div id="preview-card">
+            <h4>📋 Konfirmasi Data Siswa</h4>
+            <div class="student-detail" id="prev-nama">-</div>
+            <div class="student-sub" id="prev-kelas">-</div>
+            <div class="student-sub" style="margin-bottom: 8px;">NIS: <span id="prev-nis">-</span></div>
+            <div style="font-size: 13px; font-weight: bold; color: #2563eb; margin-bottom: 8px;">
+                Status Dipilih: <span id="prev-status" style="background: #dbeafe; padding: 3px 8px; border-radius: 6px;">H</span>
+            </div>
+            <div class="btn-group">
+                <button class="btn-submit" onclick="submitAbsensi()">✅ Konfirmasi & Simpan</button>
+                <button class="btn-cancel" onclick="cancelPreview()">❌ Batal</button>
+            </div>
+            </div>
+
+            <div id="message"></div>
+        </div>
+
+        </div>
+
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbygH0NIBVryILT42wx0hOytzA1R1mxtsCffoKaFaRwSwXkSyN50zbBlpoWqLTCF03bx/exec"; 
+
+        let html5QrCode = null;
+        let selectedKodeStatus = "H";
+        let stats = { hadir: 0, telat: 0, total: 0 };
+        let scannedBarcodeCache = "";
+
+        window.onload = function() {
+            startClock();
+            const token = localStorage.getItem("token");
+            if (token) {
+                document.getElementById("display-nama").innerText = localStorage.getItem("nama") || "Petugas Piket";
+                showDashboardScreen();
+            }
+        };
+
+        function startClock() {
+        setInterval(() => {
+                const now = new Date();
+                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                document.getElementById("live-clock").innerText = `${now.toLocaleDateString('id-ID', options)} | ${now.toLocaleTimeString('id-ID')}`;
+            }, 1000);
+        }
+
+        function setStatusMode(code) {
+        selectedKodeStatus = code;
+        document.querySelectorAll('.status-btn').forEach(btn => {
+            btn.classList.remove('active');
+            if(btn.getAttribute('data-code') === code) {
+            btn.classList.add('active');
+            }
+        });
+        }
+
+        async function handleLogin() {
+        const u = document.getElementById("username").value;
+        const p = document.getElementById("password").value;
+        const btn = document.getElementById("btn-login");
+
+        if (!u || !p) return alert("Isi username dan password!");
+
+        btn.disabled = true;
+        btn.innerText = "Memproses...";
+
+        try {
+            const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "login", username: u, password: p })
+            });
+            
+            const data = await res.json();
+            if (data.status === "success") {
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("nama", data.nama);
+            document.getElementById("display-nama").innerText = data.nama;
+            showDashboardScreen();
+            } else {
+            alert("Login gagal: " + data.message);
+            }
+        } catch (err) {
+            alert("Gagal koneksi ke server!");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Masuk Terminal";
+        }
+        }
+
+        function showDashboardScreen() {
+        document.getElementById("login-section").classList.add("hidden");
+        document.getElementById("dashboard-section").classList.remove("hidden");
+        loadStatsFromSheet();
+        startBackCameraScanner();
+        }
+
+        async function loadStatsFromSheet() {
+            const token = localStorage.getItem("token");
+            if (!token) return;
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify({ action: "getStats", token: token })
+                });
+                const data = await res.json();
+
+                if (data.status === "success") {
+                    stats.hadir = data.hadir;
+                    stats.telat = data.telat;
+                    stats.total = data.total;
+                    document.getElementById("count-hadir").innerText = stats.hadir;
+                    document.getElementById("count-telat").innerText = stats.telat;
+                    document.getElementById("count-total").innerText = stats.total;
+                }
+            } catch (err) {
+                console.error("Gagal memuat statistik:", err);
+            }
+        }
+
+        function startBackCameraScanner() {
+        if (!html5QrCode) {
+            html5QrCode = new Html5Qrcode("reader");
+        }
+        const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+        html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess).catch(() => {
+            html5QrCode.start({ facingMode: "user" }, config, onScanSuccess);
+        });
+        }
+
+        let isProcessing = false;
+
+        async function onScanSuccess(decodedText) {
+        if (isProcessing) return;
+        isProcessing = true;
+
+        const msgBox = document.getElementById("message");
+        msgBox.style.display = "block";
+        msgBox.className = "";
+        msgBox.innerText = "⏳ Memeriksa barcode: " + decodedText + "...";
+
+        const token = localStorage.getItem("token");
+
+        try {
+            const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "getStudent", token: token, barcode: decodedText })
+            });
+
+            const data = await res.json();
+            if (data.status === "success") {
+            scannedBarcodeCache = decodedText; 
+            
+            document.getElementById("prev-nama").innerText = data.student.nama;
+            document.getElementById("prev-kelas").innerText = data.student.kelas + " (" + data.student.jenjang + ")";
+            document.getElementById("prev-nis").innerText = data.student.nis;
+            document.getElementById("prev-status").innerText = selectedKodeStatus;
+
+            document.getElementById("scanner-container").style.display = "none";
+            document.getElementById("preview-card").style.display = "block";
+            msgBox.style.display = "none";
+            } else {
+            msgBox.className = "error";
+            msgBox.innerText = "❌ " + data.message;
+            setTimeout(() => { isProcessing = false; }, 2000);
+            }
+        } catch (err) {
+            msgBox.className = "error";
+            msgBox.innerText = "❌ Gagal terhubung ke server!";
+            setTimeout(() => { isProcessing = false; }, 2000);
+        }
+        }
+
+        async function submitAbsensi() {
+            const token = localStorage.getItem("token");
+            const msgBox = document.getElementById("message");
+            
+            msgBox.style.display = "block";
+            msgBox.className = "";
+            msgBox.innerText = "⏳ Menyimpan presensi...";
+
+            try {
+                const res = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "text/plain" },
+                    body: JSON.stringify({ 
+                        action: "absensi", 
+                        token: token, 
+                        barcode: scannedBarcodeCache,
+                        kodeStatus: selectedKodeStatus 
+                    })
+                });
+
+                const data = await res.json();
+                
+                if (data.status === "success") {
+                    // Tampilkan pesan sukses (baik absen baru maupun update) dengan tombol "OK"
+                    alert(data.message);
+                    
+                    // Muat ulang halaman setelah tombol "OK" diklik agar bersih kembali
+                    location.reload();
+                    
+                } else {
+                    msgBox.className = "error";
+                    msgBox.innerText = "❌ " + data.message;
+                    isProcessing = false;
+                }
+            } catch (err) {
+                msgBox.className = "error";
+                msgBox.innerText = "❌ Gagal menyimpan ke Spreadsheet!";
+                isProcessing = false;
+            }
+        }
+
+        function cancelPreview() {
+        const msgBox = document.getElementById("message");
+        msgBox.style.display = "none";
+        resetScannerState();
+        }
+
+        function resetScannerState() {
+        scannedBarcodeCache = "";
+        document.getElementById("preview-card").style.display = "none";
+        document.getElementById("scanner-container").style.display = "block";
+        setTimeout(() => { isProcessing = false; }, 1000);
+        }
+
+        async function handleLogout() {
+            const token = localStorage.getItem("token");
+            
+            if (token) {
+                try {
+                    // 1. Beritahu server Google Sheet untuk mengubah status sesi jadi "Logout"
+                    await fetch(API_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "text/plain" },
+                        body: JSON.stringify({ 
+                            action: "logout", 
+                            token: token 
+                        })
+                    });
+                } catch (err) {
+                    console.error("Gagal menghubungi server saat logout", err);
+                }
+            }
+            
+            // 2. Hapus token dari memori browser
+            localStorage.removeItem("token");
+            
+            // 3. Muat ulang halaman secara bersih
+            // Karena token sudah dihapus, halaman akan otomatis kembali ke tampilan login
+            location.reload();
+        }
+    </script>
+
+    </body>
+</html>
