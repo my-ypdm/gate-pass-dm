@@ -197,13 +197,16 @@ async function submitAbsensi() {
                 action: "absensi", 
                 token: token, 
                 barcode: scannedBarcodeCache,
-                kodeStatus: confirmedStatusCode // Menggunakan status yang dikunci saat scan, dijamin akurat!
+                kodeStatus: confirmedStatusCode 
             })
         });
 
         const data = await res.json();
         
         if (data.status === "success") {
+            // SIMPAN PAKSA status terakhir ke localStorage SEBELUM reload
+            localStorage.setItem("lastStatus", confirmedStatusCode);
+            
             alert(data.message);
             location.reload();
         } else {
