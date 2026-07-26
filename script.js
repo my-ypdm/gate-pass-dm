@@ -2,6 +2,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbygH0NIBVryILT42wx0hOyt
 
 let html5QrCode = null;
 let selectedKodeStatus = "H";
+let confirmedStatusCode = "H";
 let stats = { hadir: 0, telat: 0, total: 0 };
 let scannedBarcodeCache = "";
 
@@ -125,7 +126,7 @@ async function onScanSuccess(decodedText) {
 
     const token = localStorage.getItem("token");
 
-    // Ambil nilai dropdown saat scan berhasil, lalu KUNCI di sini
+    // Ambil nilai dropdown saat scan berhasil, lalu KUNCI di variabel global
     const statusSelect = document.getElementById("status-select");
     confirmedStatusCode = statusSelect ? statusSelect.value : "H";
 
@@ -173,10 +174,6 @@ async function submitAbsensi() {
     const token = localStorage.getItem("token");
     const msgBox = document.getElementById("message");
     
-    // Ambil langsung nilai terbaru dari dropdown saat tombol konfirmasi diklik
-    const statusSelect = document.getElementById("status-select");
-    const currentStatusCode = statusSelect ? statusSelect.value : "H";
-    
     msgBox.style.display = "block";
     msgBox.className = "";
     msgBox.innerText = "⏳ Menyimpan presensi...";
@@ -189,7 +186,7 @@ async function submitAbsensi() {
                 action: "absensi", 
                 token: token, 
                 barcode: scannedBarcodeCache,
-                kodeStatus: currentStatusCode // Mengirim kode status yang akurat sesuai pilihan dropdown
+                kodeStatus: confirmedStatusCode // Menggunakan status yang dikunci saat scan, dijamin akurat!
             })
         });
 
