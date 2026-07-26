@@ -63,13 +63,13 @@
         </div>
 
         <div class="card">
-            <div class="section-title">Mode Status Presensi:</div>
-            <div class="status-grid">
-                <button class="status-btn active" data-code="H" onclick="setStatusMode('H')">🟢 H<br><small>Hadir</small></button>
-                <button class="status-btn" data-code="T1" onclick="setStatusMode('T1')">🟡 T1<br><small>Telat 1</small></button>
-                <button class="status-btn" data-code="T2" onclick="setStatusMode('T2')">🟠 T2<br><small>Telat 2</small></button>
-                <button class="status-btn" data-code="D" onclick="setStatusMode('D')">🔵 Disp<br><small>Izin</small></button>
-            </div>
+            <div class="section-title">Status Presensi Siswa:</div>
+            <select id="status-select" class="status-dropdown" onchange="onStatusDropdownChange(this)">
+                <option value="H">🟢 Hadir Tepat Waktu</option>
+                <option value="T1">🟡 Terlambat Ringan</option>
+                <option value="T2">🟠 Terlambat Sedang</option>
+                <option value="T3">🔴 Terlambat Berat</option>
+            </select>
         </div>
 
         <!-- SCANNER & PREVIEW CARD -->
