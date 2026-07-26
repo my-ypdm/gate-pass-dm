@@ -125,9 +125,9 @@ async function onScanSuccess(decodedText) {
 
     const token = localStorage.getItem("token");
 
-    // Ambil langsung nilai terbaru dari dropdown status di layar
+    // Ambil nilai dropdown saat scan berhasil, lalu KUNCI di sini
     const statusSelect = document.getElementById("status-select");
-    const currentStatusCode = statusSelect ? statusSelect.value : "H";
+    confirmedStatusCode = statusSelect ? statusSelect.value : "H";
 
     try {
         const res = await fetch(API_URL, {
@@ -140,7 +140,6 @@ async function onScanSuccess(decodedText) {
         if (data.status === "success") {
             scannedBarcodeCache = decodedText; 
             
-            // Kamus untuk mengubah kode status menjadi teks yang jelas di preview
             const statusLabels = {
                 "H": "Hadir Tepat Waktu",
                 "T1": "Terlambat Ringan",
@@ -151,8 +150,9 @@ async function onScanSuccess(decodedText) {
             document.getElementById("prev-nama").innerText = data.student.nama;
             document.getElementById("prev-kelas").innerText = data.student.kelas + " (" + data.student.jenjang + ")";
             document.getElementById("prev-nis").innerText = data.student.nis;
-            // Tampilkan label teks sesuai pilihan dropdown saat ini
-            document.getElementById("prev-status").innerText = statusLabels[currentStatusCode] || currentStatusCode;
+            
+            // Tampilkan status sesuai yang dikunci
+            document.getElementById("prev-status").innerText = statusLabels[confirmedStatusCode] || confirmedStatusCode;
 
             document.getElementById("scanner-container").style.display = "none";
             document.getElementById("preview-card").style.display = "block";
@@ -189,7 +189,7 @@ async function submitAbsensi() {
                 action: "absensi", 
                 token: token, 
                 barcode: scannedBarcodeCache,
-                kodeStatus: currentStatusCode // Mengirim kode status yang akurat
+                kodeStatus: currentStatusCode // Mengirim kode status yang akurat sesuai pilihan dropdown
             })
         });
 
@@ -209,43 +209,6 @@ async function submitAbsensi() {
         isProcessing = false;
     }
 }
-async function submitAbsensi() {
-    const token = localStorage.getItem("token");
-    const msgBox = document.getElementById("message");
-    
-    msgBox.style.display = "block";
-    msgBox.className = "";
-    msgBox.innerText = "⏳ Menyimpan presensi...";
-
-    try {
-        const res = await fetch(API_URL, {
-            method: "POST",
-            headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ 
-                action: "absensi", 
-                token: token, 
-                barcode: scannedBarcodeCache,
-                kodeStatus: selectedKodeStatus 
-            })
-        });
-
-        const data = await res.json();
-        
-        if (data.status === "success") {
-            alert(data.message);
-            location.reload();
-        } else {
-            msgBox.className = "error";
-            msgBox.innerText = "❌ " + data.message;
-            isProcessing = false;
-        }
-    } catch (err) {
-        msgBox.className = "error";
-        msgBox.innerText = "❌ Gagal menyimpan ke Spreadsheet!";
-        isProcessing = false;
-    }
-}
-
 function cancelPreview() {
     const msgBox = document.getElementById("message");
     msgBox.style.display = "none";
