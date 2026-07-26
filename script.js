@@ -65,6 +65,16 @@ async function handleLogin() {
         if (data.status === "success") {
             localStorage.setItem("token", data.token);
             localStorage.setItem("nama", data.nama);
+            
+            
+            localStorage.removeItem("lastStatus");
+            selectedKodeStatus = "H";
+            confirmedStatusCode = "H";
+            const dropdown = document.getElementById("status-select");
+            if (dropdown) {
+                dropdown.value = "H";
+            }
+
             document.getElementById("display-nama").innerText = data.nama;
             showDashboardScreen();
         } else {
