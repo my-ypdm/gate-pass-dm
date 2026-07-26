@@ -73,6 +73,10 @@ function showDashboardScreen() {
     startBackCameraScanner();
 }
 
+function onStatusDropdownChange(selectElement) {
+    selectedKodeStatus = selectElement.value;
+    localStorage.setItem("lastStatus", selectedKodeStatus); 
+}
 async function loadStatsFromSheet() {
     const token = localStorage.getItem("token");
     if (!token) return;
