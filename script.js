@@ -1,18 +1,18 @@
 const API_URL = "https://script.google.com/macros/s/AKfycbygH0NIBVryILT42wx0hOytzA1R1mxtsCffoKaFaRwSwXkSyN50zbBlpoWqLTCF03bx/exec"; 
 
 let html5QrCode = null;
-let selectedKodeStatus = "H";
-let confirmedStatusCode = "H";
+let selectedKodeStatus = localStorage.getItem("lastStatus") || "H";
+let confirmedStatusCode = localStorage.getItem("lastStatus") || "H"; 
 let stats = { hadir: 0, telat: 0, total: 0 };
 let scannedBarcodeCache = "";
 
 window.onload = function() {
     startClock();
     
-    // Ambil status terakhir dari localStorage dan terapkan kembali ke dropdown
     const savedStatus = localStorage.getItem("lastStatus");
     if (savedStatus) {
         selectedKodeStatus = savedStatus;
+        confirmedStatusCode = savedStatus;
         const dropdown = document.getElementById("status-select");
         if (dropdown) {
             dropdown.value = savedStatus;
@@ -87,6 +87,7 @@ function showDashboardScreen() {
 
 function onStatusDropdownChange(selectElement) {
     selectedKodeStatus = selectElement.value;
+    confirmedStatusCode = selectElement.value;
     localStorage.setItem("lastStatus", selectedKodeStatus); 
 }
 async function loadStatsFromSheet() {
@@ -137,7 +138,6 @@ async function onScanSuccess(decodedText) {
 
     const token = localStorage.getItem("token");
 
-    // Ambil nilai dropdown saat scan berhasil, lalu KUNCI di variabel global
     const statusSelect = document.getElementById("status-select");
     confirmedStatusCode = statusSelect ? statusSelect.value : "H";
 
@@ -204,7 +204,7 @@ async function submitAbsensi() {
         const data = await res.json();
         
         if (data.status === "success") {
-            // SIMPAN PAKSA status terakhir ke localStorage SEBELUM reload
+           
             localStorage.setItem("lastStatus", confirmedStatusCode);
             
             alert(data.message);
