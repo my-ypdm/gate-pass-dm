@@ -46,7 +46,7 @@ body { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); color: #33
 
 /* Login Card Styling */
 .login-card-header { text-align: center; margin-bottom: 20px; }
-.login-logo { width: 75px; height: 75px; object-fit: contain; margin: 0 auto 10px auto; display: block; background: #fff7ed; padding: 6px; border-radius: 50%; border: 1px solid #fed7aa; }
+.login-logo { width: 75px; height: 75px; object-fit: contain; margin: 0 auto 10px auto; display: block; background: #fff7ed; padding: 6px; border-radius: 10%; border: 1px solid #fed7aa; }
 .login-card-header h2 { font-size: 22px; font-weight: 700; color: #1e293b; }
 .login-card-header p { font-size: 13px; color: #ea580c; font-weight: 600; }
 
