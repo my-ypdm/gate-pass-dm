@@ -8,6 +8,17 @@ let scannedBarcodeCache = "";
 
 window.onload = function() {
     startClock();
+    
+    // Ambil status terakhir dari localStorage dan terapkan kembali ke dropdown
+    const savedStatus = localStorage.getItem("lastStatus");
+    if (savedStatus) {
+        selectedKodeStatus = savedStatus;
+        const dropdown = document.getElementById("status-select");
+        if (dropdown) {
+            dropdown.value = savedStatus;
+        }
+    }
+
     const token = localStorage.getItem("token");
     if (token) {
         document.getElementById("display-nama").innerText = localStorage.getItem("nama") || "Petugas Piket";
