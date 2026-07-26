@@ -100,6 +100,29 @@ function onStatusDropdownChange(selectElement) {
     confirmedStatusCode = selectElement.value;
     localStorage.setItem("lastStatus", selectedKodeStatus); 
 }
+function resetToDashboardAfterSubmit() {
+    document.getElementById("preview-card").style.display = "none";
+    document.getElementById("scanner-container").style.display = "block";
+    
+    const msgBox = document.getElementById("message");
+    msgBox.style.display = "none";
+    msgBox.className = "";
+
+    scannedBarcodeCache = "";
+    isProcessing = false;
+
+    loadStatsFromSheet();
+    
+    const savedStatus = localStorage.getItem("lastStatus");
+    if (savedStatus) {
+        confirmedStatusCode = savedStatus;
+        selectedKodeStatus = savedStatus;
+        const dropdown = document.getElementById("status-select");
+        if (dropdown) {
+            dropdown.value = savedStatus;
+        }
+    }
+}
 async function loadStatsFromSheet() {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -214,11 +237,13 @@ async function submitAbsensi() {
         const data = await res.json();
         
         if (data.status === "success") {
-           
+            // Simpan status terakhir ke localStorage
             localStorage.setItem("lastStatus", confirmedStatusCode);
             
             alert(data.message);
-            location.reload();
+            
+            // Panggil reset manual agar langsung siap untuk siswa berikutnya di APK Android
+            resetToDashboardAfterSubmit();
         } else {
             msgBox.className = "error";
             msgBox.innerText = "❌ " + data.message;
