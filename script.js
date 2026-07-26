@@ -249,5 +249,8 @@ async function handleLogout() {
     }
     
     localStorage.removeItem("token");
+    localStorage.removeItem("nama");
+    localStorage.removeItem("lastStatus"); 
+    
     location.reload();
 }
