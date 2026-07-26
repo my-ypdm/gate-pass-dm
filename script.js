@@ -121,6 +121,10 @@ async function onScanSuccess(decodedText) {
 
     const token = localStorage.getItem("token");
 
+    // Ambil langsung nilai terbaru dari dropdown status di layar
+    const statusSelect = document.getElementById("status-select");
+    const currentStatusCode = statusSelect ? statusSelect.value : "H";
+
     try {
         const res = await fetch(API_URL, {
             method: "POST",
@@ -143,7 +147,8 @@ async function onScanSuccess(decodedText) {
             document.getElementById("prev-nama").innerText = data.student.nama;
             document.getElementById("prev-kelas").innerText = data.student.kelas + " (" + data.student.jenjang + ")";
             document.getElementById("prev-nis").innerText = data.student.nis;
-            document.getElementById("prev-status").innerText = statusLabels[selectedKodeStatus] || selectedKodeStatus;
+            // Tampilkan label teks sesuai pilihan dropdown saat ini
+            document.getElementById("prev-status").innerText = statusLabels[currentStatusCode] || currentStatusCode;
 
             document.getElementById("scanner-container").style.display = "none";
             document.getElementById("preview-card").style.display = "block";
@@ -157,6 +162,47 @@ async function onScanSuccess(decodedText) {
         msgBox.className = "error";
         msgBox.innerText = "❌ Gagal terhubung ke server!";
         setTimeout(() => { isProcessing = false; }, 2000);
+    }
+}
+
+async function submitAbsensi() {
+    const token = localStorage.getItem("token");
+    const msgBox = document.getElementById("message");
+    
+    // Ambil langsung nilai terbaru dari dropdown saat tombol konfirmasi diklik
+    const statusSelect = document.getElementById("status-select");
+    const currentStatusCode = statusSelect ? statusSelect.value : "H";
+    
+    msgBox.style.display = "block";
+    msgBox.className = "";
+    msgBox.innerText = "⏳ Menyimpan presensi...";
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ 
+                action: "absensi", 
+                token: token, 
+                barcode: scannedBarcodeCache,
+                kodeStatus: currentStatusCode // Mengirim kode status yang akurat
+            })
+        });
+
+        const data = await res.json();
+        
+        if (data.status === "success") {
+            alert(data.message);
+            location.reload();
+        } else {
+            msgBox.className = "error";
+            msgBox.innerText = "❌ " + data.message;
+            isProcessing = false;
+        }
+    } catch (err) {
+        msgBox.className = "error";
+        msgBox.innerText = "❌ Gagal menyimpan ke Spreadsheet!";
+        isProcessing = false;
     }
 }
 async function submitAbsensi() {
