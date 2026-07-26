@@ -20,13 +20,25 @@ body { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); color: #33
 .stat-box strong { font-size: 18px; color: #9a3412; }
 
 .section-title { font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-.status-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.status-btn { padding: 10px 5px; border: 2px solid #cbd5e1; background: #ffffff; border-radius: 10px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s; text-align: center; }
 
-.status-btn[data-code="H"].active { background: #22c55e; color: white; border-color: #16a34a; }
-.status-btn[data-code="T1"].active { background: #eab308; color: white; border-color: #ca8a04; }
-.status-btn[data-code="T2"].active { background: #f97316; color: white; border-color: #ea580c; }
-.status-btn[data-code="D"].active { background: #a855f7; color: white; border-color: #9333ea; }
+/* Styling Dropdown Status Presensi */
+.status-dropdown {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #cbd5e1;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    background: #ffffff;
+    color: #334155;
+    outline: none;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.status-dropdown:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
 
 #reader { width: 100%; border-radius: 12px; overflow: hidden; border: none; background: #000; }
 
