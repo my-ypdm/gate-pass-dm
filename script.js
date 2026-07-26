@@ -132,10 +132,18 @@ async function onScanSuccess(decodedText) {
         if (data.status === "success") {
             scannedBarcodeCache = decodedText; 
             
+            // Kamus untuk mengubah kode status menjadi teks yang jelas di preview
+            const statusLabels = {
+                "H": "Hadir Tepat Waktu",
+                "T1": "Terlambat Ringan",
+                "T2": "Terlambat Sedang",
+                "T3": "Terlambat Berat"
+            };
+
             document.getElementById("prev-nama").innerText = data.student.nama;
             document.getElementById("prev-kelas").innerText = data.student.kelas + " (" + data.student.jenjang + ")";
             document.getElementById("prev-nis").innerText = data.student.nis;
-            document.getElementById("prev-status").innerText = selectedKodeStatus;
+            document.getElementById("prev-status").innerText = statusLabels[selectedKodeStatus] || selectedKodeStatus;
 
             document.getElementById("scanner-container").style.display = "none";
             document.getElementById("preview-card").style.display = "block";
@@ -151,7 +159,6 @@ async function onScanSuccess(decodedText) {
         setTimeout(() => { isProcessing = false; }, 2000);
     }
 }
-
 async function submitAbsensi() {
     const token = localStorage.getItem("token");
     const msgBox = document.getElementById("message");
