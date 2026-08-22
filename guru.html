@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portal Guru - e-Piket SMA Dua Mei</title>
+    <!-- Menggunakan file CSS yang sama agar desainnya serasi -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- 1. HEADER DASHBOARD GURU -->
+        <div class="card header-card">
+            <div class="user-info-wrapper">
+                <img src="icon.png" alt="Logo" class="header-logo">
+                <div class="user-info">
+                    <h3 id="display-nama-guru">Bapak/Ibu Guru</h3>
+                    <p>Portal Wali Kelas / Guru</p>
+                </div>
+            </div>
+            <button class="btn-logout" onclick="handleLogoutGuru()">Keluar</button>
+        </div>
+
+        <!-- 2. KONTROL WAKTU / INFORMASI HARI INI -->
+        <div class="card">
+            <div class="time-bar" id="live-clock-guru">-</div>
+            <div class="section-title">📊 Rekapitulasi Kehadiran Siswa</div>
+            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">
+                Pantau data kehadiran harian siswa secara real-time melalui sistem e-Piket.
+            </p>
+            
+            <!-- Kotak Kontainer Dinamis untuk Data Guru -->
+            <div id="info-guru-content" style="font-size: 14px; padding: 15px; background: #fff7ed; border-radius: 10px; border: 1px solid #fed7aa; color: #334155;">
+                <div style="text-align: center; color: #c2410c; font-weight: 600;">Memuat data rekap...</div>
+            </div>
+        </div>
+
+        <!-- 3. MENU / FITUR TAMBAHAN UNTUK GURU (OPSIONAL) -->
+        <div class="card">
+            <div class="section-title">📌 Informasi Akademik</div>
+            <div style="font-size: 13px; color: #475569; display: flex; flex-direction: column; gap: 8px;">
+                <div style="padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
+                    💡 <b>Catatan:</b> Fitur rekap per kelas atau detail siswa terlambat dapat dikembangkan di bagian ini sesuai kebutuhan sekolah.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Panggil file JavaScript khusus guru -->
+    <script src="guru.js"></script>
+    <script>
+        // Jam kecil otomatis di halaman guru
+        setInterval(() => {
+            const now = new Date();
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const clockEl = document.getElementById("live-clock-guru");
+            if (clockEl) {
+                clockEl.innerText = `${now.toLocaleDateString('id-ID', options)} | ${now.toLocaleTimeString('id-ID')}`;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
