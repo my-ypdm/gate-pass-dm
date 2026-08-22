@@ -9,18 +9,29 @@ let scannedBarcodeCache = "";
 window.onload = function() {
     startClock();
     
-    const savedStatus = localStorage.getItem("lastStatus");
-    if (savedStatus) {
-        selectedKodeStatus = savedStatus;
-        confirmedStatusCode = savedStatus;
-        const dropdown = document.getElementById("status-select");
-        if (dropdown) {
-            dropdown.value = savedStatus;
-        }
-    }
-
     const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
+
+   
     if (token) {
+        
+        if (role === "guru") {
+            window.location.href = "guru.html";
+            return;
+        }
+
+        // Jika petugas piket, muat status terakhir dari localStorage
+        const savedStatus = localStorage.getItem("lastStatus");
+        if (savedStatus) {
+            selectedKodeStatus = savedStatus;
+            confirmedStatusCode = savedStatus;
+            const dropdown = document.getElementById("status-select");
+            if (dropdown) {
+                dropdown.value = savedStatus;
+            }
+        }
+
+        // Tampilkan nama petugas piket dan masuk ke dashboard
         document.getElementById("display-nama").innerText = localStorage.getItem("nama") || "Petugas Piket";
         showDashboardScreen();
     }
