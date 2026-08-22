@@ -45,7 +45,7 @@
                 <button onclick="toggleSidebar()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 8px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 2px;">☰</button>
                 <div class="user-info">
                     <h3 id="display-nama-guru">Bapak/Ibu Guru</h3>
-                    <p>Portal Wali Kelas / Guru</p>
+                    <p>Portal Guru</p>
                 </div>
             </div>
             <button class="btn-logout" onclick="handleLogoutGuru()">Keluar</button>
@@ -55,26 +55,11 @@
         <div id="page-dashboard" class="page-section">
             <div class="card">
                 <div class="time-bar" id="live-clock-guru">-</div>
-                <div class="section-title">📊 Ringkasan Kehadiran Hari Ini</div>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <span>HADIR</span>
-                        <strong id="guru-hadir" style="color: #2563eb;">0</strong>
-                    </div>
-                    <div class="stat-box">
-                        <span>TERLAMBAT</span>
-                        <strong id="guru-telat" style="color: #d97706;">0</strong>
-                    </div>
-                    <div class="stat-box">
-                        <span>TOTAL</span>
-                        <strong id="guru-total" style="color: #0f172a;">0</strong>
-                    </div>
-                </div>
-            </div>
-            <div class="card">
-                <div class="section-title">📝 Informasi Terbaru</div>
-                <div class="guru-badge" style="font-size: 13px; padding: 12px; border-radius: 8px; border: 1px solid;">
-                    Selamat datang di portal guru. Gunakan menu samping (☰) untuk mengakses jadwal mengajar dan absensi mata pelajaran.
+                <div class="section-title">⏰ Jadwal & Kehadiran Kelas Saat Ini</div>
+                
+                <!-- KOTAK PENGINGAT PINTAR (TARGET DARI GURU.JS) -->
+                <div id="smart-schedule-box" style="padding: 14px; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; color: #1e40af; font-size: 13px; line-height: 1.5;">
+                    ⏳ Memeriksa jadwal mengajar hari ini...
                 </div>
             </div>
         </div>
