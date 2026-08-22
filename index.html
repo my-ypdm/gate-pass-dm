@@ -30,49 +30,53 @@
             <button class="btn-primary" id="btn-login" onclick="handleLogin()">Masuk Terminal</button>
         </div>
 
-        <!-- 2. DASHBOARD PETUGAS & TERMINAL SCANNER (Hanya muncul setelah login) -->
+        <!-- 2. DASHBOARD PETUGAS & TERMINAL SCANNER -->
         <div id="dashboard-section" class="hidden" style="display: flex; flex-direction: column; gap: 15px;">
             
-            <!-- Header Profil Petugas -->
-            <div class="card header-card">
-                <div class="user-info-wrapper">
-                    <img src="icon.png" alt="Logo" class="header-logo">
-                    <div class="user-info">
-                        <h3 id="display-nama">Petugas Piket</h3>
-                        <p id="display-role">Piket Gerbang - SMA Dua Mei</p>
+            <!-- Header Profil dengan Tombol Menu Samping (Hamburger) -->
+            <div class="card header-card" style="display: flex; align-items: center; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <!-- Tombol Buka Sidebar (☰) -->
+                    <button onclick="toggleSidebar()" style="background: transparent; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0 5px;">☰</button>
+                    <div class="user-info-wrapper" style="display: flex; align-items: center; gap: 10px;">
+                        <img src="icon.png" alt="Logo" class="header-logo" style="width: 35px; height: 35px; border-radius: 50%;">
+                        <div class="user-info">
+                            <h3 id="display-nama" style="font-size: 14px; margin: 0;">Petugas Piket</h3>
+                            <p id="display-role" style="font-size: 11px; margin: 0; opacity: 0.9;">Piket Gerbang</p>
+                        </div>
                     </div>
                 </div>
-                <button class="btn-logout" onclick="handleLogout()">Keluar</button>
+                <button class="btn-logout" onclick="handleLogout()" style="font-size: 12px; padding: 5px 10px;">Keluar</button>
             </div>
-
-            <!-- 🔀 TOMBOL NAVIGASI MENU (Scan Barcode vs Menu Statistik) -->
-            <div style="display: flex; gap: 8px; background: #e2e8f0; padding: 4px; border-radius: 8px;">
-                <button id="nav-scan-btn" onclick="switchPiketTab('scan')" style="flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: bold; background: #2563eb; color: white; cursor: pointer; font-size: 13px;">📷 Scan Barcode</button>
-                <button id="nav-stat-btn" onclick="switchPiketTab('statistik')" style="flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: bold; background: transparent; color: #475569; cursor: pointer; font-size: 13px;">📊 Menu Statistik</button>
+        
+            <!-- 📱 SIDEBAR / MENU SAMPING (DRAWER) -->
+            <div id="app-sidebar" style="position: fixed; top: 0; left: -280px; width: 260px; height: 100%; background: white; box-shadow: 4px 0 15px rgba(0,0,0,0.2); z-index: 1000; transition: 0.3s ease; padding: 20px; box-sizing: border-box; display: flex; flex-direction: column; gap: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px;">
+                    <h3 style="margin: 0; color: #1e293b; font-size: 16px;">📌 Menu Utama</h3>
+                    <button onclick="toggleSidebar()" style="background: none; border: none; font-size: 20px; cursor: pointer; color: #64748b;">✕</button>
+                </div>
+                
+                <!-- Pilihan Menu di Dalam Sidebar -->
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <button onclick="selectSidebarMenu('scan')" style="text-align: left; background: #eff6ff; color: #1d4ed8; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">📷 Scan Barcode (Home)</button>
+                    <button onclick="selectSidebarMenu('statistik')" style="text-align: left; background: #f8fafc; color: #334155; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">📊 Menu Statistik</button>
+                </div>
             </div>
-
-            <!-- TAB 1: HALAMAN UTAMA / SCANNER -->
-            <div id="tab-scan-content" style="display: flex; flex-direction: column; gap: 15px;">
-                <!-- Kotak Statistik Harian -->
+        
+            <!-- Latar Belakang Gelap Saat Sidebar Terbuka (Overlay) -->
+            <div id="sidebar-overlay" onclick="toggleSidebar()" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 999; display: none;"></div>
+        
+            <!-- Halaman 1: Scan Barcode (Tampil Default) -->
+            <div id="page-scan-content" style="display: flex; flex-direction: column; gap: 15px;">
                 <div class="card">
                     <div class="time-bar" id="live-clock">-</div>
                     <div class="stats-grid">
-                        <div class="stat-box">
-                            <span>Tepat Waktu</span>
-                            <strong id="count-hadir">0</strong>
-                        </div>
-                        <div class="stat-box">
-                            <span>Terlambat</span>
-                            <strong id="count-telat">0</strong>
-                        </div>
-                        <div class="stat-box">
-                            <span>Total Scan</span>
-                            <strong id="count-total">0</strong>
-                        </div>
+                        <div class="stat-box"><span>Tepat Waktu</span><strong id="count-hadir">0</strong></div>
+                        <div class="stat-box"><span>Terlambat</span><strong id="count-telat">0</strong></div>
+                        <div class="stat-box"><span>Total Scan</span><strong id="count-total">0</strong></div>
                     </div>
                 </div>
-
-                <!-- Pilihan Status Presensi -->
+        
                 <div class="card">
                     <div class="section-title">Status Presensi Siswa:</div>
                     <select id="status-select" class="status-dropdown" onchange="onStatusDropdownChange(this)">
@@ -82,13 +86,9 @@
                         <option value="T3">🔴 Terlambat Berat</option>
                     </select>
                 </div>
-
-                <!-- SCANNER & PREVIEW CARD -->
+        
                 <div class="card" style="padding: 10px;">
-                    <div id="scanner-container">
-                        <div id="reader"></div>
-                    </div>
-
+                    <div id="scanner-container"><div id="reader"></div></div>
                     <div id="preview-card">
                         <h4>📋 Konfirmasi Data Siswa</h4>
                         <div class="student-detail" id="prev-nama">-</div>
@@ -102,23 +102,21 @@
                             <button class="btn-cancel" onclick="cancelPreview()">❌ Batal</button>
                         </div>
                     </div>
-
                     <div id="message"></div>
                 </div>
             </div>
-
-            <!-- TAB 2: HALAMAN STATISTIK -->
-            <div id="tab-stat-content" style="display: none; flex-direction: column; gap: 15px;">
+        
+            <!-- Halaman 2: Menu Statistik -->
+            <div id="page-statistik-content" style="display: none; flex-direction: column; gap: 15px;">
                 <div class="card" style="padding: 15px;">
                     <div class="section-title" style="margin-bottom: 10px;">📊 Rekapitulasi & Statistik Kehadiran</div>
-                    <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Data akumulasi harian seluruh petugas piket dan laporan bulanan kedisiplinan siswa.</p>
-                    
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Akumulasi data kehadiran harian dan bulanan seluruh siswa.</p>
                     <div id="statistik-data-container" style="font-size: 13px; color: #334155;">
                         <div style="text-align: center; padding: 30px; color: #94a3b8;">Memuat data statistik...</div>
                     </div>
                 </div>
             </div>
-
+        
         </div>
 
     </div>
