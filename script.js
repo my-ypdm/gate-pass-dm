@@ -34,16 +34,6 @@ function startClock() {
     }, 1000);
 }
 
-function setStatusMode(code) {
-    selectedKodeStatus = code;
-    document.querySelectorAll('.status-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if(btn.getAttribute('data-code') === code) {
-            btn.classList.add('active');
-        }
-    });
-}
-
 async function handleLogin() {
     const u = document.getElementById("username").value;
     const p = document.getElementById("password").value;
@@ -65,7 +55,6 @@ async function handleLogin() {
         if (data.status === "success") {
             localStorage.setItem("token", data.token);
             localStorage.setItem("nama", data.nama);
-            
             
             localStorage.removeItem("lastStatus");
             selectedKodeStatus = "H";
@@ -100,6 +89,7 @@ function onStatusDropdownChange(selectElement) {
     confirmedStatusCode = selectElement.value;
     localStorage.setItem("lastStatus", selectedKodeStatus); 
 }
+
 function resetToDashboardAfterSubmit() {
     document.getElementById("preview-card").style.display = "none";
     document.getElementById("scanner-container").style.display = "block";
@@ -123,6 +113,7 @@ function resetToDashboardAfterSubmit() {
         }
     }
 }
+
 async function loadStatsFromSheet() {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -170,7 +161,6 @@ async function onScanSuccess(decodedText) {
     msgBox.innerText = "⏳ Memeriksa barcode: " + decodedText + "...";
 
     const token = localStorage.getItem("token");
-
     const statusSelect = document.getElementById("status-select");
     confirmedStatusCode = statusSelect ? statusSelect.value : "H";
 
@@ -196,7 +186,6 @@ async function onScanSuccess(decodedText) {
             document.getElementById("prev-kelas").innerText = data.student.kelas + " (" + data.student.jenjang + ")";
             document.getElementById("prev-nis").innerText = data.student.nis;
             
-            // Tampilkan status sesuai yang dikunci
             document.getElementById("prev-status").innerText = statusLabels[confirmedStatusCode] || confirmedStatusCode;
 
             document.getElementById("scanner-container").style.display = "none";
@@ -237,12 +226,8 @@ async function submitAbsensi() {
         const data = await res.json();
         
         if (data.status === "success") {
-            // Simpan status terakhir ke localStorage
             localStorage.setItem("lastStatus", confirmedStatusCode);
-            
             alert(data.message);
-            
-            // Panggil reset manual agar langsung siap untuk siswa berikutnya di APK Android
             resetToDashboardAfterSubmit();
         } else {
             msgBox.className = "error";
@@ -255,6 +240,7 @@ async function submitAbsensi() {
         isProcessing = false;
     }
 }
+
 function cancelPreview() {
     const msgBox = document.getElementById("message");
     msgBox.style.display = "none";
@@ -267,30 +253,39 @@ function resetScannerState() {
     document.getElementById("scanner-container").style.display = "block";
     setTimeout(() => { isProcessing = false; }, 1000);
 }
-function switchPiketTab(tabName) {
-    const tabScan = document.getElementById('tab-scan-content');
-    const tabStat = document.getElementById('tab-stat-content');
-    const btnScan = document.getElementById('nav-scan-btn');
-    const btnStat = document.getElementById('nav-stat-btn');
 
-    if (tabName === 'scan') {
-        tabScan.style.display = 'flex';
-        tabStat.style.display = 'none';
-        btnScan.style.background = '#2563eb';
-        btnScan.style.color = 'white';
-        btnStat.style.background = 'transparent';
-        btnStat.style.color = '#475569';
+// 📱 FUNGSI KONTROL SIDEBAR (MENU SAMPING)
+function toggleSidebar() {
+    const sidebar = document.getElementById('app-sidebar');
+    const overlay = document.getElementById('sidebar-overlay');
+    
+    if (sidebar.style.left === '0px') {
+        sidebar.style.left = '-280px';
+        overlay.style.display = 'none';
     } else {
-        tabScan.style.display = 'none';
-        tabStat.style.display = 'flex';
-        btnStat.style.background = '#2563eb';
-        btnStat.style.color = 'white';
-        btnScan.style.background = 'transparent';
-        btnScan.style.color = '#475569';
-
-        // Di sini nanti kita bisa panggil fungsi untuk menarik data statistik dari Spreadsheet
+        sidebar.style.left = '0px';
+        overlay.style.display = 'block';
     }
 }
+
+function selectSidebarMenu(menuType) {
+    const pageScan = document.getElementById('page-scan-content');
+    const pageStat = document.getElementById('page-statistik-content');
+
+    // Tutup laci sidebar secara otomatis saat menu diklik
+    toggleSidebar();
+
+    if (menuType === 'scan') {
+        pageScan.style.display = 'flex';
+        pageStat.style.display = 'none';
+    } else if (menuType === 'statistik') {
+        pageScan.style.display = 'none';
+        pageStat.style.display = 'flex';
+        
+        // Nanti fungsi ambil data statistik bulanan/harian gabungan ditaruh di sini
+    }
+}
+
 async function handleLogout() {
     const token = localStorage.getItem("token");
     
