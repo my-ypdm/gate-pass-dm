@@ -267,7 +267,30 @@ function resetScannerState() {
     document.getElementById("scanner-container").style.display = "block";
     setTimeout(() => { isProcessing = false; }, 1000);
 }
+function switchPiketTab(tabName) {
+    const tabScan = document.getElementById('tab-scan-content');
+    const tabStat = document.getElementById('tab-stat-content');
+    const btnScan = document.getElementById('nav-scan-btn');
+    const btnStat = document.getElementById('nav-stat-btn');
 
+    if (tabName === 'scan') {
+        tabScan.style.display = 'flex';
+        tabStat.style.display = 'none';
+        btnScan.style.background = '#2563eb';
+        btnScan.style.color = 'white';
+        btnStat.style.background = 'transparent';
+        btnStat.style.color = '#475569';
+    } else {
+        tabScan.style.display = 'none';
+        tabStat.style.display = 'flex';
+        btnStat.style.background = '#2563eb';
+        btnStat.style.color = 'white';
+        btnScan.style.background = 'transparent';
+        btnScan.style.color = '#475569';
+
+        // Di sini nanti kita bisa panggil fungsi untuk menarik data statistik dari Spreadsheet
+    }
+}
 async function handleLogout() {
     const token = localStorage.getItem("token");
     
