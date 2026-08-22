@@ -2,7 +2,8 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    <title>e-Piket SMA Dua Mei</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">    
+    <title>e-Piket SMA Dua Mei</title>
     
     <!-- PWA & External Resources -->
     <link rel="manifest" href="manifest.json">
@@ -15,93 +16,115 @@
 </head>
 <body>
 
-<div class="container">
+    <div class="container">
 
-    <!-- 1. FORM LOGIN -->
-    <div id="login-section" class="card">
-        <div class="login-card-header">
-            <img src="icon.png" alt="Logo SMA Dua Mei" class="login-logo">
-            <h2>e-Piket</h2>
-            <p>SMA Dua Mei</p>
+        <!-- 1. FORM LOGIN -->
+        <div id="login-section" class="card">
+            <div class="login-card-header">
+                <img src="icon.png" alt="Logo SMA Dua Mei" class="login-logo">
+                <h2>e-Piket</h2>
+                <p>SMA Dua Mei</p>
+            </div>
+            <input type="text" id="username" placeholder="Username Petugas" required>
+            <input type="password" id="password" placeholder="Password / PIN" required>
+            <button class="btn-primary" id="btn-login" onclick="handleLogin()">Masuk Terminal</button>
         </div>
-        <input type="text" id="username" placeholder="Username Petugas" required>
-        <input type="password" id="password" placeholder="Password / PIN" required>
-        <button class="btn-primary" id="btn-login" onclick="handleLogin()">Masuk Terminal</button>
+
+        <!-- 2. DASHBOARD PETUGAS & TERMINAL SCANNER (Hanya muncul setelah login) -->
+        <div id="dashboard-section" class="hidden" style="display: flex; flex-direction: column; gap: 15px;">
+            
+            <!-- Header Profil Petugas -->
+            <div class="card header-card">
+                <div class="user-info-wrapper">
+                    <img src="icon.png" alt="Logo" class="header-logo">
+                    <div class="user-info">
+                        <h3 id="display-nama">Petugas Piket</h3>
+                        <p id="display-role">Piket Gerbang - SMA Dua Mei</p>
+                    </div>
+                </div>
+                <button class="btn-logout" onclick="handleLogout()">Keluar</button>
+            </div>
+
+            <!-- 🔀 TOMBOL NAVIGASI MENU (Scan Barcode vs Menu Statistik) -->
+            <div style="display: flex; gap: 8px; background: #e2e8f0; padding: 4px; border-radius: 8px;">
+                <button id="nav-scan-btn" onclick="switchPiketTab('scan')" style="flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: bold; background: #2563eb; color: white; cursor: pointer; font-size: 13px;">📷 Scan Barcode</button>
+                <button id="nav-stat-btn" onclick="switchPiketTab('statistik')" style="flex: 1; padding: 8px; border-radius: 6px; border: none; font-weight: bold; background: transparent; color: #475569; cursor: pointer; font-size: 13px;">📊 Menu Statistik</button>
+            </div>
+
+            <!-- TAB 1: HALAMAN UTAMA / SCANNER -->
+            <div id="tab-scan-content" style="display: flex; flex-direction: column; gap: 15px;">
+                <!-- Kotak Statistik Harian -->
+                <div class="card">
+                    <div class="time-bar" id="live-clock">-</div>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span>Tepat Waktu</span>
+                            <strong id="count-hadir">0</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span>Terlambat</span>
+                            <strong id="count-telat">0</strong>
+                        </div>
+                        <div class="stat-box">
+                            <span>Total Scan</span>
+                            <strong id="count-total">0</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pilihan Status Presensi -->
+                <div class="card">
+                    <div class="section-title">Status Presensi Siswa:</div>
+                    <select id="status-select" class="status-dropdown" onchange="onStatusDropdownChange(this)">
+                        <option value="H">🟢 Hadir Tepat Waktu</option>
+                        <option value="T1">🟡 Terlambat Ringan</option>
+                        <option value="T2">🟠 Terlambat Sedang</option>
+                        <option value="T3">🔴 Terlambat Berat</option>
+                    </select>
+                </div>
+
+                <!-- SCANNER & PREVIEW CARD -->
+                <div class="card" style="padding: 10px;">
+                    <div id="scanner-container">
+                        <div id="reader"></div>
+                    </div>
+
+                    <div id="preview-card">
+                        <h4>📋 Konfirmasi Data Siswa</h4>
+                        <div class="student-detail" id="prev-nama">-</div>
+                        <div class="student-sub" id="prev-kelas">-</div>
+                        <div class="student-sub" style="margin-bottom: 8px;">NIS: <span id="prev-nis">-</span></div>
+                        <div style="font-size: 13px; font-weight: bold; color: #ea580c; margin-bottom: 8px;">
+                            Status Dipilih: <span id="prev-status" style="background: #ffedd5; padding: 3px 8px; border-radius: 6px;">H</span>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-submit" onclick="submitAbsensi()">✅ Konfirmasi & Simpan</button>
+                            <button class="btn-cancel" onclick="cancelPreview()">❌ Batal</button>
+                        </div>
+                    </div>
+
+                    <div id="message"></div>
+                </div>
+            </div>
+
+            <!-- TAB 2: HALAMAN STATISTIK -->
+            <div id="tab-stat-content" style="display: none; flex-direction: column; gap: 15px;">
+                <div class="card" style="padding: 15px;">
+                    <div class="section-title" style="margin-bottom: 10px;">📊 Rekapitulasi & Statistik Kehadiran</div>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 15px;">Data akumulasi harian seluruh petugas piket dan laporan bulanan kedisiplinan siswa.</p>
+                    
+                    <div id="statistik-data-container" style="font-size: 13px; color: #334155;">
+                        <div style="text-align: center; padding: 30px; color: #94a3b8;">Memuat data statistik...</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
     </div>
 
-    <!-- 2. DASHBOARD PETUGAS & TERMINAL SCANNER -->
-    <div id="dashboard-section" class="hidden" style="display: flex; flex-direction: column; gap: 15px;">
-    
-        <div class="card header-card">
-            <div class="user-info-wrapper">
-                <img src="icon.png" alt="Logo" class="header-logo">
-                <div class="user-info">
-                    <h3 id="display-nama">Petugas Piket</h3>
-                    <p id="display-role">Piket Gerbang - SMA Dua Mei</p>
-                </div>
-            </div>
-            <button class="btn-logout" onclick="handleLogout()">Keluar</button>
-        </div>
-
-        <div class="card">
-            <div class="time-bar" id="live-clock">-</div>
-            <div class="stats-grid">
-                <div class="stat-box">
-                    <span>Tepat Waktu</span>
-                    <strong id="count-hadir">0</strong>
-                </div>
-                <div class="stat-box">
-                    <span>Terlambat</span>
-                    <strong id="count-telat">0</strong>
-                </div>
-                <div class="stat-box">
-                    <span>Total Scan</span>
-                    <strong id="count-total">0</strong>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="section-title">Status Presensi Siswa:</div>
-            <select id="status-select" class="status-dropdown" onchange="onStatusDropdownChange(this)">
-                <option value="H">🟢 Hadir Tepat Waktu</option>
-                <option value="T1">🟡 Terlambat Ringan</option>
-                <option value="T2">🟠 Terlambat Sedang</option>
-                <option value="T3">🔴 Terlambat Berat</option>
-            </select>
-        </div>
-
-        <!-- SCANNER & PREVIEW CARD -->
-        <div class="card" style="padding: 10px;">
-            <!-- Area Kamera -->
-            <div id="scanner-container">
-                <div id="reader"></div>
-            </div>
-
-            <!-- Card Preview Data Siswa Sebelum Submit -->
-            <div id="preview-card">
-                <h4>📋 Konfirmasi Data Siswa</h4>
-                <div class="student-detail" id="prev-nama">-</div>
-                <div class="student-sub" id="prev-kelas">-</div>
-                <div class="student-sub" style="margin-bottom: 8px;">NIS: <span id="prev-nis">-</span></div>
-                <div style="font-size: 13px; font-weight: bold; color: #ea580c; margin-bottom: 8px;">
-                    Status Dipilih: <span id="prev-status" style="background: #ffedd5; padding: 3px 8px; border-radius: 6px;">H</span>
-                </div>
-                <div class="btn-group">
-                    <button class="btn-submit" onclick="submitAbsensi()">✅ Konfirmasi & Simpan</button>
-                    <button class="btn-cancel" onclick="cancelPreview()">❌ Batal</button>
-                </div>
-            </div>
-
-            <div id="message"></div>
-        </div>
-
-    </div>
-
-</div>
-
-<!-- Memanggil JavaScript Terpisah -->
-<script src="script.js"></script>
+    <!-- Memanggil JavaScript Terpisah -->
+    <script src="script.js"></script>
 
 </body>
 </html>
