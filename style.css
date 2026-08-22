@@ -8,13 +8,13 @@ body {
     min-height: 100vh; 
     padding: 12px; 
 }
-.container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 15px;}
+.container { width: 100%; max-width: 480px; min-height: 100vh; display: flex; flex-direction: column; gap: 15px;}
 
 .card { background: #ffffff; padding: 18px; border-radius: 16px; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.1); border: 1px solid #ffedd5; }
 #login-section { 
-    margin: auto; /* Ini yang membuat login otomatis ke tengah */
+    margin: auto; 
     width: 100%; 
-    max-width: 480px; /* Sesuaikan dengan container */
+    padding: 20px;
 }
 /* Header Dashboard */
 .header-card { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; }
