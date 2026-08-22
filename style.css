@@ -1,9 +1,21 @@
 * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 0; }
-body { background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); color: #334155; display: flex; justify-content: center; min-height: 100vh; padding: 12px; }
+body { 
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%); 
+    color: #334155; 
+    display: flex; 
+    justify-content: center; 
+    align-items: flex-start; 
+    min-height: 100vh; 
+    padding: 12px; 
+}
 .container { width: 100%; max-width: 480px; display: flex; flex-direction: column; gap: 15px;}
 
 .card { background: #ffffff; padding: 18px; border-radius: 16px; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.1); border: 1px solid #ffedd5; }
-
+#login-section { 
+    margin: auto; /* Ini yang membuat login otomatis ke tengah */
+    width: 100%; 
+    max-width: 480px; /* Sesuaikan dengan container */
+}
 /* Header Dashboard */
 .header-card { display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color: white; border: none; }
 .user-info-wrapper { display: flex; align-items: center; gap: 12px; }
