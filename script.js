@@ -73,7 +73,8 @@ async function handleLogin() {
             if (data.role === "guru") {
                 window.location.href = "guru.html"; 
                 return; 
-            }
+            } 
+
             // --- JIKA PETUGAS PIKET, JALANKAN ALUR BIASA ---
             localStorage.removeItem("lastStatus");
             selectedKodeStatus = "H";
