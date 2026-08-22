@@ -3,56 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Guru - e-Piket SMA Dua Mei</title>
-    <!-- Menggunakan file CSS yang sama agar desainnya serasi -->
-    <link rel="stylesheet" href="style.css">
+    <title>Portal Guru - e-Piket</title>
+    <!-- Memanggil CSS terpisah khusus guru -->
+    <link rel="stylesheet" href="guru.css">
 </head>
 <body>
 
-    <div class="container">
+    <!-- OVERLAY SIDEBAR -->
+    <div id="sidebar-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 99;" onclick="toggleSidebar()"></div>
 
-        <!-- 1. HEADER DASHBOARD GURU -->
+    <!-- SIDEBAR MENU KHUSUS GURU -->
+    <div id="app-sidebar" style="position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: white; z-index: 100; box-shadow: 4px 0 15px rgba(0,0,0,0.1); transition: left 0.3s ease; display: flex; flex-direction: column;">
+        <div style="padding: 20px; background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%); color: white; display: flex; align-items: center; justify-content: space-between;">
+            <div style="font-weight: 700; font-size: 16px;">Menu Portal Guru</div>
+            <button onclick="toggleSidebar()" style="background: none; border: none; color: white; font-size: 18px; cursor: pointer;">✕</button>
+        </div>
+        <div style="padding: 15px; display: flex; flex-direction: column; gap: 8px;">
+            <button onclick="selectMenuGuru('rekap')" style="text-align: left; padding: 10px 14px; background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; border-radius: 8px; font-weight: 600; cursor: pointer;">📊 Rekap Kehadiran</button>
+            <button onclick="selectMenuGuru('profil')" style="text-align: left; padding: 10px 14px; background: transparent; border: none; color: #475569; border-radius: 8px; font-weight: 600; cursor: pointer;">👤 Informasi Akun</button>
+        </div>
+        <div style="margin-top: auto; padding: 15px; border-top: 1px solid #e2e8f0;">
+            <button onclick="handleLogoutGuru()" style="width: 100%; padding: 10px; background: #fee2e2; border: 1px solid #fca5a5; color: #991b1b; border-radius: 8px; font-weight: 600; cursor: pointer;">Keluar Aplikasi</button>
+        </div>
+    </div>
+
+    <div class="container">
+        
+        <!-- 1. HEADER CARD -->
         <div class="card header-card">
             <div class="user-info-wrapper">
-                <img src="icon.png" alt="Logo" class="header-logo">
+                <button onclick="toggleSidebar()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 36px; height: 36px; border-radius: 8px; font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; margin-right: 2px;">☰</button>
                 <div class="user-info">
                     <h3 id="display-nama-guru">Bapak/Ibu Guru</h3>
-                    <p>Portal Wali Kelas / Guru</p>
+                    <p>Portal Wali Kelas</p>
                 </div>
             </div>
             <button class="btn-logout" onclick="handleLogoutGuru()">Keluar</button>
         </div>
 
-        <!-- 2. KONTROL WAKTU / INFORMASI HARI INI -->
+        <!-- 2. TIME BAR & STATS GRID -->
         <div class="card">
             <div class="time-bar" id="live-clock-guru">-</div>
-            <div class="section-title">📊 Rekapitulasi Kehadiran Siswa</div>
-            <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">
-                Pantau data kehadiran harian siswa secara real-time melalui sistem e-Piket.
-            </p>
             
-            <!-- Kotak Kontainer Dinamis untuk Data Guru -->
-            <div id="info-guru-content" style="font-size: 14px; padding: 15px; background: #fff7ed; border-radius: 10px; border: 1px solid #fed7aa; color: #334155;">
-                <div style="text-align: center; color: #c2410c; font-weight: 600;">Memuat data rekap...</div>
+            <div class="section-title">📊 Ringkasan Kehadiran Hari Ini</div>
+            
+            <div class="stats-grid">
+                <div class="stat-box">
+                    <span>HADIR</span>
+                    <strong id="guru-hadir" style="color: #2563eb;">0</strong>
+                </div>
+                <div class="stat-box">
+                    <span>TERLAMBAT</span>
+                    <strong id="guru-telat" style="color: #d97706;">0</strong>
+                </div>
+                <div class="stat-box">
+                    <span>TOTAL</span>
+                    <strong id="guru-total" style="color: #0f172a;">0</strong>
+                </div>
             </div>
         </div>
 
-        <!-- 3. MENU / FITUR TAMBAHAN UNTUK GURU (OPSIONAL) -->
+        <!-- 3. KONTEN UTAMA REKAP -->
         <div class="card">
-            <div class="section-title">📌 Informasi Akademik</div>
-            <div style="font-size: 13px; color: #475569; display: flex; flex-direction: column; gap: 8px;">
-                <div style="padding: 10px; background: #f8fafc; border-radius: 8px; border: 1px solid #e2e8f0;">
-                    💡 <b>Catatan:</b> Fitur rekap per kelas atau detail siswa terlambat dapat dikembangkan di bagian ini sesuai kebutuhan sekolah.
-                </div>
+            <div class="section-title">📝 Detail Kehadiran Kelas</div>
+            <div id="info-guru-content" class="guru-badge" style="font-size: 13px; padding: 12px; border-radius: 8px; border: 1px solid;">
+                Memuat data rekap kelas secara real-time...
             </div>
         </div>
 
     </div>
 
-    <!-- Panggil file JavaScript khusus guru -->
+    <!-- Panggil Script Pendukung -->
     <script src="guru.js"></script>
     <script>
-        // Jam kecil otomatis di halaman guru
         setInterval(() => {
             const now = new Date();
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -61,6 +84,25 @@
                 clockEl.innerText = `${now.toLocaleDateString('id-ID', options)} | ${now.toLocaleTimeString('id-ID')}`;
             }
         }, 1000);
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('app-sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar.style.left === '0px') {
+                sidebar.style.left = '-280px';
+                overlay.style.display = 'none';
+            } else {
+                sidebar.style.left = '0px';
+                overlay.style.display = 'block';
+            }
+        }
+
+        function selectMenuGuru(menu) {
+            toggleSidebar();
+            if(menu === 'profil') {
+                alert("Fitur profil guru aktif.");
+            }
+        }
     </script>
 </body>
 </html>
