@@ -53,9 +53,17 @@ async function handleLogin() {
         
         const data = await res.json();
         if (data.status === "success") {
+            // Simpan data sesi ke localStorage
             localStorage.setItem("token", data.token);
             localStorage.setItem("nama", data.nama);
+            localStorage.setItem("role", data.role); 
             
+            // CEK ROLE: 
+            if (data.role === "guru") {
+                window.location.href = "guru.html"; 
+                return; 
+
+            // --- JIKA PETUGAS PIKET, JALANKAN ALUR BIASA ---
             localStorage.removeItem("lastStatus");
             selectedKodeStatus = "H";
             confirmedStatusCode = "H";
@@ -70,6 +78,7 @@ async function handleLogin() {
             alert("Login gagal: " + data.message);
         }
     } catch (err) {
+        console.error(err);
         alert("Gagal koneksi ke server!");
     } finally {
         btn.disabled = false;
