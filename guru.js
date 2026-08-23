@@ -48,10 +48,10 @@ async function loadGuruDashboard() {
                 return;
             }
 
-            // Render kartu-kartu jadwal dengan desain modern dan rapi
+            // Render kartu-kartu jadwal yang ramah mobile
             let htmlCards = `<div style="margin-bottom: 12px; font-size: 13px; font-weight: 600; color: #1e293b; display: flex; justify-content: space-between; align-items: center;">
-                <span>📅 Jadwal Mengajar Hari Ini (${data.hari})</span>
-                <span style="font-size: 12px; color: #64748b; font-weight: normal;">Pukul ${data.jamSekarang}</span>
+                <span>📅 Jadwal Hari Ini (${data.hari})</span>
+                <span style="font-size: 12px; color: #64748b; font-weight: normal; white-space: nowrap;">Pukul ${data.jamSekarang}</span>
             </div>`;
             htmlCards += `<div style="display: flex; flex-direction: column; gap: 12px;">`;
 
@@ -66,7 +66,7 @@ async function loadGuruDashboard() {
                     leftBorderColor = "#8b5cf6";
                 } else if (item.status === "segera_mulai") {
                     badgeBg = "#f97316"; // Oranye
-                    badgeText = "⚠️ Segera Mulai (5 Mnt)";
+                    badgeText = "⚠️ Segera Mulai";
                     leftBorderColor = "#f97316";
                 } else if (item.status === "akan_datang") {
                     badgeBg = "#3b82f6"; // Biru
@@ -80,15 +80,23 @@ async function loadGuruDashboard() {
 
                 htmlCards += `
                     <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid ${leftBorderColor}; padding: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                            <span style="font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; background: ${badgeBg}; color: #ffffff; letter-spacing: 0.3px;">${badgeText}</span>
-                            <span style="font-size: 13px; font-weight: 600; color: #475569;">⏰ ${item.jamMulai} - ${item.jamSelesai}</span>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 6px;">
+                            <span style="font-size: 11px; font-weight: 600; padding: 4px 8px; border-radius: 20px; background: ${badgeBg}; color: #ffffff; white-space: nowrap;">${badgeText}</span>
+                            <span style="font-size: 12px; font-weight: 600; color: #475569; white-space: nowrap;">⏰ ${item.jamMulai} - ${item.jamSelesai}</span>
                         </div>
                         <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">📚 ${item.mapel}</div>
                         <div style="font-size: 13px; color: #475569; margin-bottom: 10px;">Kelas: <b style="color: #1e293b;">${item.kelas}</b></div>
-                        <div style="font-size: 12px; color: #475569; background: #f8fafc; border-radius: 6px; padding: 8px 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #f1f5f9;">
-                            <span>📊 Absensi Piket:</span>
-                            <span>Hadir: <b style="color: #16a34a;">${item.rekap.hadir}</b> | Terlambat: <b style="color: #d97706;">${item.rekap.terlambat}</b> | Total: <b style="color: #0f172a;">${item.rekap.totalAbsen}</b></span>
+                        
+                        <!-- Bagian Rekap Absensi yang disusun rapi ke bawah agar tidak sesak di HP -->
+                        <div style="font-size: 12px; color: #475569; background: #f8fafc; border-radius: 6px; padding: 8px 10px; border: 1px solid #f1f5f9;">
+                            <div style="font-weight: 600; color: #334155; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
+                                📊 Absensi Piket Kelas:
+                            </div>
+                            <div style="display: flex; justify-content: space-between; color: #475569; font-weight: 500;">
+                                <span>Hadir: <b style="color: #16a34a;">${item.rekap.hadir}</b></span>
+                                <span>Terlambat: <b style="color: #d97706;">${item.rekap.terlambat}</b></span>
+                                <span>Total: <b style="color: #0f172a;">${item.rekap.totalAbsen}</b></span>
+                            </div>
                         </div>
                     </div>
                 `;
