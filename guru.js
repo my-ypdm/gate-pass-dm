@@ -47,7 +47,7 @@ async function loadGuruDashboard() {
             if (!jadwalList || jadwalList.length === 0) {
                 smartBox.innerHTML = `
                     <div style="text-align: center; padding: 16px; color: #475569; background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <b>☕ Tidak Ada Jadwal Mengajar Hari Ini</b>
+                        <b>Tidak Ada Jadwal Mengajar Hari Ini</b>
                         <p style="margin: 6px 0 0 0; font-size: 12px; color: #64748b;">Hari ini hari ${data.hari} (${data.jamSekarang}), tidak tercatat jadwal aktif di sistem untukmu.</p>
                     </div>
                 `;
@@ -68,15 +68,15 @@ async function loadGuruDashboard() {
 
                 if (item.status === "berlangsung") {
                     badgeBg = "#8b5cf6"; // Ungu
-                    badgeText = "🔔 Sedang Berlangsung";
+                    badgeText = "Sedang Berlangsung";
                     leftBorderColor = "#8b5cf6";
                 } else if (item.status === "segera_mulai") {
                     badgeBg = "#f97316"; // Oranye
-                    badgeText = "⚠️ Segera Mulai";
+                    badgeText = "Segera Mulai";
                     leftBorderColor = "#f97316";
                 } else if (item.status === "akan_datang") {
                     badgeBg = "#3b82f6"; // Biru
-                    badgeText = "⏳ Akan Datang";
+                    badgeText = "Akan Datang";
                     leftBorderColor = "#3b82f6";
                 } else if (item.status === "selesai") {
                     badgeBg = "#22c55e"; // Hijau
