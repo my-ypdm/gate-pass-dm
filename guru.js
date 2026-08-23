@@ -202,6 +202,7 @@ async function loadGuruJadwal() {
     }
 }
 // 1. Load Halaman Awal Absensi Mapel (Menampilkan pilihan Kelas/Jadwal Guru)
+// 1. Load Halaman Absensi Mapel (Otomatis mendeteksi jadwal yang sedang berlangsung hari ini)
 async function loadAbsensiMapel() {
     const token = localStorage.getItem("token");
     const container = document.getElementById("content-absensi-mapel");
@@ -213,46 +214,67 @@ async function loadAbsensiMapel() {
     container.style.boxShadow = "none";
     container.style.padding = "0";
 
-    container.innerHTML = "<div style='text-align: center; padding: 20px; color: #64748b; font-size: 13px;'>⏳ Memuat daftar kelas mengajar...</div>";
+    container.innerHTML = "<div style='text-align: center; padding: 20px; color: #64748b; font-size: 13px;'>⏳ Memeriksa jadwal mengajar yang sedang berlangsung...</div>";
 
     try {
-        // Mengambil jadwal guru untuk dijadikan pilihan kelas presensi
+        // Menggunakan data dashboard guru karena sudah otomatis memfilter jadwal & status berdasarkan jam saat ini
         const res = await fetch(API_URL, {
             method: "POST",
             headers: { "Content-Type": "text/plain" },
-            body: JSON.stringify({ action: "getGuruJadwalData", token: token })
+            body: JSON.stringify({ action: "getGuruDashboardData", token: token })
         });
 
         const data = await res.json();
 
         if (data.status === "success") {
-            const jadwal = data.jadwal;
+            const daftarJadwal = data.daftarJadwal;
 
-            if (!jadwal || jadwal.length === 0) {
+            if (!daftarJadwal || daftarJadwal.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; padding: 20px; color: #475569; background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0;">
-                        <b>Tidak Ada Jadwal</b>
-                        <p style="margin: 6px 0 0 0; font-size: 12px; color: #64748b;">Anda tidak memiliki jadwal mengajar untuk melakukan absensi.</p>
+                        <b>Tidak Ada Jadwal Hari Ini</b>
+                        <p style="margin: 6px 0 0 0; font-size: 12px; color: #64748b;">Hari ini (${data.hari}) tidak ada jadwal mengajar tercatat untuk Anda.</p>
                     </div>
                 `;
                 return;
             }
 
-            // Buat pilihan kelas / mapel yang unik
+            // Cari jadwal yang statusnya sedang berlangsung atau segera mulai
+            let activeSchedule = daftarJadwal.find(item => item.status === "berlangsung" || item.status === "segera_mulai");
+
             let html = `
                 <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 16px;">
-                    <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Pilih Kelas & Mata Pelajaran</div>
-                    <p style="font-size: 12px; color: #64748b; margin-bottom: 12px;">Pilih sesi kelas di bawah ini untuk mulai mencatat kehadiran siswa:</p>
-                    <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 4px;">📋 Absensi Siswa per Mata Pelajaran</div>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 14px;">Hari ini: <b>${data.hari}</b> | Pukul: <b>${data.jamSekarang}</b></p>
             `;
 
-            // Agar tidak duplikat jika ada jadwal berulang, kita bisa tampilkan langsung daftarnya
-            jadwal.forEach((item, index) => {
+            // Jika ada kelas yang sedang aktif/berlangsung
+            if (activeSchedule) {
                 html += `
-                    <button onclick="fetchStudentsForAttendance('${item.kelas}', '${item.mapel}')" style="text-align: left; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;">
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 14px; margin-bottom: 14px;">
+                        <div style="font-size: 11px; font-weight: 700; color: #1d4ed8; text-transform: uppercase; margin-bottom: 4px;">✨ Jadwal Aktif Saat Ini</div>
+                        <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">📚 ${activeSchedule.mapel} - Kelas ${activeSchedule.kelas}</div>
+                        <div style="font-size: 12px; color: #475569; margin-bottom: 12px;">⏰ ${activeSchedule.jamMulai} - ${activeSchedule.jamSelesai}</div>
+                        <button onclick="fetchStudentsForAttendance('${activeSchedule.kelas}', '${activeSchedule.mapel}')" style="width: 100%; padding: 10px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">Buka Absensi Kelas Ini &rsaquo;</button>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 14px; text-align: center; color: #64748b; font-size: 12px;">
+                        ℹ️ Tidak ada jadwal yang sedang berlangsung pada jam ${data.jamSekarang}. Silakan pilih dari daftar jadwal hari ini di bawah:
+                    </div>
+                `;
+            }
+
+            html += `<div style="font-size: 13px; font-weight: 600; color: #1e293b; margin-bottom: 8px;">Daftar Seluruh Jadwal Hari Ini:</div>`;
+            html += `<div style="display: flex; flex-direction: column; gap: 8px;">`;
+
+            daftarJadwal.forEach(item => {
+                html += `
+                    <button onclick="fetchStudentsForAttendance('${item.kelas}', '${item.mapel}')" style="text-align: left; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center;">
                         <div>
                             <div style="font-size: 13px; font-weight: 700; color: #0f172a;">📚 ${item.mapel} - Kelas ${item.kelas}</div>
-                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Hari: ${item.hari} | ⏰ ${item.jamMulai} - ${item.jamSelesai}</div>
+                            <div style="font-size: 11px; color: #64748b;">⏰ ${item.jamMulai} - ${item.jamSelesai}</div>
                         </div>
                         <span style="font-size: 12px; font-weight: 600; color: #2563eb;">Pilih &rsaquo;</span>
                     </button>
