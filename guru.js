@@ -117,3 +117,11 @@ async function loadGuruDashboard() {
         smartBox.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal terhubung ke server! Periksa koneksi internetmu.</div>`;
     }
 }
+
+function logout() {
+
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    
+    window.location.href = "index.html"; 
+}
