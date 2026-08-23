@@ -159,6 +159,8 @@
                 loadGuruJadwal(); 
             } else if (menuType === 'dashboard') {
                 if (typeof loadGuruDashboard === 'function') loadGuruDashboard();
+            } else if (menuType === 'absensi_mapel') {
+                if (typeof loadAbsensiMapel === 'function') loadAbsensiMapel(); // 👈 Tambahkan baris ini
             }
         }
     </script>
