@@ -48,30 +48,32 @@ async function loadGuruDashboard() {
                 return;
             }
 
-            // Render kartu-kartu jadwal hari ini
+            // Render kartu-kartu jadwal hari ini dengan warna yang diminta
             let htmlCards = `<div style="margin-bottom: 10px; font-weight: 600; color: #1e3a8a;">📅 Jadwal Mengajar Hari Ini (${data.hari}, Pukul ${data.jamSekarang}):</div>`;
             htmlCards += `<div style="display: flex; flex-direction: column; gap: 10px;">`;
 
             jadwalList.forEach(item => {
-                let badgeStyle = "background: #e2e8f0; color: #475569;";
-                let badgeText = "Akan Datang";
-                let cardBorder = "border: 1px solid #e2e8f0; background: #ffffff;";
+                let badgeStyle = "";
+                let badgeText = "";
+                let cardBorder = "";
 
-                if (item.status === "berlangsung") {
-                    badgeStyle = "background: #22c55e; color: #ffffff;";
-                    badgeText = "🔔 Sedang Berlangsung";
-                    cardBorder = "border: 2px solid #22c55e; background: #f0fdf4;";
-                } else if (item.status === "segera_mulai") {
-                    badgeStyle = "background: #f59e0b; color: #ffffff;";
-                    badgeText = "⚠️ Segera Mulai (5 Menit Lagi)";
-                    cardBorder = "border: 2px solid #f59e0b; background: #fffbeb;";
+                if (item.status === "berlangsung" || item.status === "segera_mulai") {
+                    // KUNING: Sedang Berlangsung / Segera Mulai
+                    badgeStyle = "background: #eab308; color: #ffffff;";
+                    badgeText = item.status === "berlangsung" ? "🔔 Sedang Berlangsung" : "⚠️ Segera Mulai (5 Menit Lagi)";
+                    cardBorder = "border: 2px solid #eab308; background: #fefce8;";
+                } else if (item.status === "akan_datang") {
+                    // BIRU: Akan Datang
+                    badgeStyle = "background: #3b82f6; color: #ffffff;";
+                    badgeText = "⏳ Akan Datang";
+                    cardBorder = "border: 1px solid #bfdbfe; background: #eff6ff;";
                 } else if (item.status === "selesai") {
-                    badgeStyle = "background: #94a3b8; color: #ffffff;";
+                    // HIJAU: Selesai
+                    badgeStyle = "background: #22c55e; color: #ffffff;";
                     badgeText = "✔️ Selesai";
-                    cardBorder = "border: 1px solid #e2e8f0; background: #f8fafc; opacity: 0.8;";
+                    cardBorder = "border: 1px solid #bbf7d0; background: #f0fdf4; opacity: 0.85;";
                 }
 
-                htmlCards.forEach
                 htmlCards += `
                     <div style="${cardBorder} border-radius: 8px; padding: 12px; font-size: 13px;">
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
