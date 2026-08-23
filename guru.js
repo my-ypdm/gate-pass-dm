@@ -56,7 +56,7 @@ async function loadGuruDashboard() {
 
             // Render judul dan daftar kartu jadwal tanpa kotak luar
             let htmlCards = `<div style="margin-bottom: 12px; font-size: 14px; font-weight: 700; color: #1e293b; display: flex; justify-content: space-between; align-items: center;">
-                <span>📅 Jadwal Hari Ini (${data.hari})</span>
+                <span>Jadwal Hari Ini (${data.hari})</span>
                 <span style="font-size: 12px; color: #64748b; font-weight: normal; white-space: nowrap;">Pukul ${data.jamSekarang}</span>
             </div>`;
             htmlCards += `<div style="display: flex; flex-direction: column; gap: 12px;">`;
