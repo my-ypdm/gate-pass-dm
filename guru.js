@@ -118,10 +118,9 @@ async function loadGuruDashboard() {
     }
 }
 
-function logout() {
+function handleLogoutGuru() {
 
     localStorage.removeItem("token");
-    localStorage.removeItem("role");
     
-    window.location.href = "index.html"; 
+    window.location.href = "index.html";
 }
