@@ -57,11 +57,16 @@ async function loadGuruDashboard() {
                 let badgeText = "";
                 let cardBorder = "";
 
-                if (item.status === "berlangsung" || item.status === "segera_mulai") {
-                    // KUNING: Sedang Berlangsung / Segera Mulai
-                    badgeStyle = "background: #eab308; color: #ffffff;";
-                    badgeText = item.status === "berlangsung" ? "🔔 Sedang Berlangsung" : "⚠️ Segera Mulai (5 Menit Lagi)";
-                    cardBorder = "border: 2px solid #eab308; background: #fefce8;";
+                if (item.status === "berlangsung") {
+                    // UNGU: Sedang Berlangsung
+                    badgeStyle = "background: #8b5cf6; color: #ffffff;";
+                    badgeText = "🔔 Sedang Berlangsung";
+                    cardBorder = "border: 2px solid #8b5cf6; background: #f5f3ff;";
+                } else if (item.status === "segera_mulai") {
+                    // ORANYE: Segera Mulai (5 Menit Lagi)
+                    badgeStyle = "background: #f97316; color: #ffffff;";
+                    badgeText = "⚠️ Segera Mulai (5 Menit Lagi)";
+                    cardBorder = "border: 2px solid #f97316; background: #fff7ed;";
                 } else if (item.status === "akan_datang") {
                     // BIRU: Akan Datang
                     badgeStyle = "background: #3b82f6; color: #ffffff;";
