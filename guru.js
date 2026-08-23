@@ -117,7 +117,90 @@ async function loadGuruDashboard() {
         smartBox.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal terhubung ke server! Periksa koneksi internetmu.</div>`;
     }
 }
+async function loadGuruJadwal() {
+    const token = localStorage.getItem("token");
+    const container = document.getElementById("jadwal-container"); // Pastikan elemen ini ada di halaman HTML menu jadwal
 
+    if (!container) return;
+
+    // Bersihkan gaya kotak luar agar menyatu rapi dengan halaman
+    container.style.background = "transparent";
+    container.style.border = "none";
+    container.style.boxShadow = "none";
+    container.style.padding = "0";
+
+    container.innerHTML = "<div style='text-align: center; padding: 20px; color: #64748b; font-size: 13px;'>⏳ Memuat seluruh jadwal mengajar...</div>";
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "getGuruJadwalData", token: token })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+            const jadwal = data.jadwal;
+
+            if (!jadwal || jadwal.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #475569; background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0;">
+                        <b>📚 Belum Ada Jadwal</b>
+                        <p style="margin: 6px 0 0 0; font-size: 12px; color: #64748b;">Belum ada jadwal mengajar yang tercatat di sistem untuk akunmu.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Kelompokkan jadwal berdasarkan hari
+            let groupedJadwal = {};
+            jadwal.forEach(item => {
+                if (!groupedJadwal[item.hari]) {
+                    groupedJadwal[item.hari] = [];
+                }
+                groupedJadwal[item.hari].push(item);
+            });
+
+            let html = `<div style="display: flex; flex-direction: column; gap: 16px;">`;
+
+            for (let hari in groupedJadwal) {
+                html += `
+                    <div>
+                        <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                            📌 ${hari}
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 10px;">
+                `;
+
+                groupedJadwal[hari].forEach(item => {
+                    html += `
+                        <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; border-left: 5px solid #3b82f6; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <div>
+                                <div style="font-size: 14px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">📚 ${item.mapel}</div>
+                                <div style="font-size: 12px; color: #475569;">Kelas: <b style="color: #1e293b;">${item.kelas}</b></div>
+                            </div>
+                            <div style="text-align: right; white-space: nowrap;">
+                                <span style="font-size: 12px; font-weight: 600; color: #3b82f6; background: #eff6ff; padding: 4px 8px; border-radius: 6px;">⏰ ${item.jamMulai} - ${item.jamSelesai}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+            }
+
+            html += `</div>`;
+            container.innerHTML = html;
+
+        } else {
+            container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal memuat jadwal: ${data.message}</div>`;
+        }
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal terhubung ke server! Periksa koneksi internetmu.</div>`;
+    }
+}
 async function handleLogoutGuru() {
     const token = localStorage.getItem("token");
     
