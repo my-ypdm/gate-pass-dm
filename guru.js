@@ -36,29 +36,60 @@ async function loadGuruDashboard() {
             // Tampilkan nama guru di header
             document.getElementById("display-nama-guru").innerText = data.namaGuru || "Bapak/Ibu Guru";
 
-            // Cek apakah guru sedang mengajar jam ini
-            if (data.mengajarSekarang) {
-                const jadwal = data.jadwalAktif;
-                const rekap = data.rekapKelas;
+            const jadwalList = data.daftarJadwal;
 
+            if (!jadwalList || jadwalList.length === 0) {
                 smartBox.innerHTML = `
-                    <div style="margin-bottom: 6px; color: #1e40af;"><b>🔔 Sedang Berlangsung (${jadwal.jamMulai} - ${jadwal.jamSelesai})</b></div>
-                    <p style="margin: 0 0 8px 0; font-size: 13px;">Kamu mengajar mata pelajaran <b>${jadwal.mapel}</b> di kelas <b>${jadwal.kelas}</b>.</p>
-                    <hr style="border: 0; border-top: 1px solid #bfdbfe; margin: 8px 0;">
-                    <div style="font-size: 12px; color: #1e3a8a; line-height: 1.4;">
-                        📊 <b>Rekap Absensi Piket Hari Ini di Kelas Ini:</b><br>
-                        - Hadir Tepat Waktu: <b>${rekap.hadir}</b> siswa<br>
-                        - Terlambat: <b>${rekap.terlambat}</b> siswa<br>
-                        - Total Masuk Tercatat: <b>${rekap.totalAbsen}</b> siswa
+                    <div style="text-align: center; padding: 10px; color: #475569;">
+                        <b>☕ Tidak Ada Jadwal Mengajar Hari Ini</b>
+                        <p style="margin: 4px 0 0 0; font-size: 12px;">Hari ini hari ${data.hari} (${data.jamSekarang}), tidak tercatat jadwal aktif di sistem untukmu.</p>
                     </div>
                 `;
-            } else {
-                // Jika saat ini di luar jam mengajar
-                smartBox.innerHTML = `
-                    <b>☕ Tidak Ada Jadwal Mengajar Saat Ini</b>
-                    <p style="margin: 4px 0 0 0; color: #475569; font-size: 13px;">Saat ini pukul ${data.jamSekarang} (${data.hari}), tidak tercatat jadwal aktif di sistem untukmu.</p>
-                `;
+                return;
             }
+
+            // Render kartu-kartu jadwal hari ini
+            let htmlCards = `<div style="margin-bottom: 10px; font-weight: 600; color: #1e3a8a;">📅 Jadwal Mengajar Hari Ini (${data.hari}, Pukul ${data.jamSekarang}):</div>`;
+            htmlCards += `<div style="display: flex; flex-direction: column; gap: 10px;">`;
+
+            jadwalList.forEach(item => {
+                let badgeStyle = "background: #e2e8f0; color: #475569;";
+                let badgeText = "Akan Datang";
+                let cardBorder = "border: 1px solid #e2e8f0; background: #ffffff;";
+
+                if (item.status === "berlangsung") {
+                    badgeStyle = "background: #22c55e; color: #ffffff;";
+                    badgeText = "🔔 Sedang Berlangsung";
+                    cardBorder = "border: 2px solid #22c55e; background: #f0fdf4;";
+                } else if (item.status === "segera_mulai") {
+                    badgeStyle = "background: #f59e0b; color: #ffffff;";
+                    badgeText = "⚠️ Segera Mulai (5 Menit Lagi)";
+                    cardBorder = "border: 2px solid #f59e0b; background: #fffbeb;";
+                } else if (item.status === "selesai") {
+                    badgeStyle = "background: #94a3b8; color: #ffffff;";
+                    badgeText = "✔️ Selesai";
+                    cardBorder = "border: 1px solid #e2e8f0; background: #f8fafc; opacity: 0.8;";
+                }
+
+                htmlCards.forEach
+                htmlCards += `
+                    <div style="${cardBorder} border-radius: 8px; padding: 12px; font-size: 13px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                            <span style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 4px; ${badgeStyle}">${badgeText}</span>
+                            <span style="font-weight: 600; color: #334155;">⏰ ${item.jamMulai} - ${item.jamSelesai}</span>
+                        </div>
+                        <div style="font-size: 14px; font-weight: bold; color: #1e293b; margin-bottom: 2px;">📚 ${item.mapel}</div>
+                        <div style="color: #475569; margin-bottom: 6px;">🏫 Kelas: <b>${item.kelas}</b></div>
+                        <div style="font-size: 12px; color: #334155; border-top: 1px dashed #cbd5e1; padding-top: 6px; margin-top: 4px;">
+                            📊 Absensi Piket Kelas Ini: Hadir: <b>${item.rekap.hadir}</b> | Terlambat: <b>${item.rekap.terlambat}</b> | Total Masuk: <b>${item.rekap.totalAbsen}</b>
+                        </div>
+                    </div>
+                `;
+            });
+
+            htmlCards += `</div>`;
+            smartBox.innerHTML = htmlCards;
+
         } else {
             smartBox.innerHTML = `❌ Gagal memuat data: ${data.message}`;
         }
@@ -67,7 +98,6 @@ async function loadGuruDashboard() {
         smartBox.innerHTML = `❌ Gagal terhubung ke server! Periksa koneksi internetmu.`;
     }
 }
-
 // Fungsi Keluar / Logout khusus Guru
 async function handleLogoutGuru() {
     const token = localStorage.getItem("token");
