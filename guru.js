@@ -21,6 +21,12 @@ async function loadGuruDashboard() {
 
     if (!smartBox) return;
 
+    // Menghilangkan kotak/card biru di luar agar tampilannya rata dengan halaman
+    smartBox.style.background = "transparent";
+    smartBox.style.border = "none";
+    smartBox.style.boxShadow = "none";
+    smartBox.style.padding = "0";
+
     smartBox.innerHTML = "<div style='text-align: center; padding: 20px; color: #64748b; font-size: 13px;'>⏳ Memeriksa jadwal dan data absensi piket hari ini...</div>";
 
     try {
@@ -40,7 +46,7 @@ async function loadGuruDashboard() {
 
             if (!jadwalList || jadwalList.length === 0) {
                 smartBox.innerHTML = `
-                    <div style="text-align: center; padding: 16px; color: #475569; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0;">
+                    <div style="text-align: center; padding: 16px; color: #475569; background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0;">
                         <b>☕ Tidak Ada Jadwal Mengajar Hari Ini</b>
                         <p style="margin: 6px 0 0 0; font-size: 12px; color: #64748b;">Hari ini hari ${data.hari} (${data.jamSekarang}), tidak tercatat jadwal aktif di sistem untukmu.</p>
                     </div>
@@ -48,8 +54,8 @@ async function loadGuruDashboard() {
                 return;
             }
 
-            // Render kartu-kartu jadwal yang ramah mobile
-            let htmlCards = `<div style="margin-bottom: 12px; font-size: 13px; font-weight: 600; color: #1e293b; display: flex; justify-content: space-between; align-items: center;">
+            // Render judul dan daftar kartu jadwal tanpa kotak luar
+            let htmlCards = `<div style="margin-bottom: 12px; font-size: 14px; font-weight: 700; color: #1e293b; display: flex; justify-content: space-between; align-items: center;">
                 <span>📅 Jadwal Hari Ini (${data.hari})</span>
                 <span style="font-size: 12px; color: #64748b; font-weight: normal; white-space: nowrap;">Pukul ${data.jamSekarang}</span>
             </div>`;
@@ -87,11 +93,9 @@ async function loadGuruDashboard() {
                         <div style="font-size: 15px; font-weight: 700; color: #0f172a; margin-bottom: 2px;">📚 ${item.mapel}</div>
                         <div style="font-size: 13px; color: #475569; margin-bottom: 10px;">Kelas: <b style="color: #1e293b;">${item.kelas}</b></div>
                         
-                        <!-- Bagian Rekap Absensi yang disusun rapi ke bawah agar tidak sesak di HP -->
+                        <!-- Rekap Absensi Piket -->
                         <div style="font-size: 12px; color: #475569; background: #f8fafc; border-radius: 6px; padding: 8px 10px; border: 1px solid #f1f5f9;">
-                            <div style="font-weight: 600; color: #334155; margin-bottom: 4px; display: flex; align-items: center; gap: 4px;">
-                                📊 Absensi Piket Kelas:
-                            </div>
+                            <div style="font-weight: 600; color: #334155; margin-bottom: 4px;">📊 Absensi Piket Kelas:</div>
                             <div style="display: flex; justify-content: space-between; color: #475569; font-weight: 500;">
                                 <span>Hadir: <b style="color: #16a34a;">${item.rekap.hadir}</b></span>
                                 <span>Terlambat: <b style="color: #d97706;">${item.rekap.terlambat}</b></span>
