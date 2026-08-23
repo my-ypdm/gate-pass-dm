@@ -128,7 +128,7 @@
         // Navigator Menu Sidebar Guru
         function selectMenuGuru(menuType) {
             toggleSidebar();
-
+        
             // Sembunyikan semua halaman
             const pages = ['dashboard', 'jadwal', 'absensi_mapel', 'rekap'];
             pages.forEach(p => {
@@ -142,16 +142,23 @@
                     btn.style.color = '#475569';
                 }
             });
-
+        
             // Tampilkan halaman yang dipilih
             const targetPage = document.getElementById('page-' + menuType);
             const targetBtn = document.getElementById('menu-btn-' + menuType);
-
+        
             if (targetPage) targetPage.style.display = 'block';
             if (targetBtn) {
                 targetBtn.style.background = '#eff6ff';
                 targetBtn.style.border = '1px solid #bfdbfe';
                 targetBtn.style.color = '#1e40af';
+            }
+        
+            // 🚀 Panggil fungsi pemuat data sesuai menu yang dipilih
+            if (menuType === 'jadwal') {
+                loadGuruJadwal();
+            } else if (menuType === 'dashboard') {
+                loadGuruDashboard();
             }
         }
     </script>
