@@ -118,9 +118,25 @@ async function loadGuruDashboard() {
     }
 }
 
-function handleLogoutGuru() {
-
-    localStorage.removeItem("token");
+async function handleLogoutGuru() {
+    const token = localStorage.getItem("token");
     
+    if (token) {
+        try {
+            await fetch(API_URL, {
+                method: "POST",
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify({ action: "logout", token: token })
+            });
+        } catch (err) {
+            console.error("Gagal menghubungi server saat logout", err);
+        }
+    }
+    
+    localStorage.removeItem("token");
+    localStorage.removeItem("nama");
+    localStorage.removeItem("lastStatus"); 
+    
+    // Arahkan kembali ke halaman login
     window.location.href = "index.html";
 }
