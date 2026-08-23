@@ -201,6 +201,214 @@ async function loadGuruJadwal() {
         container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal terhubung ke server! Periksa koneksi internetmu.</div>`;
     }
 }
+// 1. Load Halaman Awal Absensi Mapel (Menampilkan pilihan Kelas/Jadwal Guru)
+async function loadAbsensiMapel() {
+    const token = localStorage.getItem("token");
+    const container = document.getElementById("content-absensi-mapel");
+
+    if (!container) return;
+
+    container.style.background = "transparent";
+    container.style.border = "none";
+    container.style.boxShadow = "none";
+    container.style.padding = "0";
+
+    container.innerHTML = "<div style='text-align: center; padding: 20px; color: #64748b; font-size: 13px;'>⏳ Memuat daftar kelas mengajar...</div>";
+
+    try {
+        // Mengambil jadwal guru untuk dijadikan pilihan kelas presensi
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "getGuruJadwalData", token: token })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+            const jadwal = data.jadwal;
+
+            if (!jadwal || jadwal.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 20px; color: #475569; background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0;">
+                        <b>Tidak Ada Jadwal</b>
+                        <p style="margin: 6px 0 0 0; font-size: 12px; color: #64748b;">Anda tidak memiliki jadwal mengajar untuk melakukan absensi.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Buat pilihan kelas / mapel yang unik
+            let html = `
+                <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 16px;">
+                    <div style="font-size: 14px; font-weight: 700; color: #1e293b; margin-bottom: 8px;">Pilih Kelas & Mata Pelajaran</div>
+                    <p style="font-size: 12px; color: #64748b; margin-bottom: 12px;">Pilih sesi kelas di bawah ini untuk mulai mencatat kehadiran siswa:</p>
+                    <div style="display: flex; flex-direction: column; gap: 8px;">
+            `;
+
+            // Agar tidak duplikat jika ada jadwal berulang, kita bisa tampilkan langsung daftarnya
+            jadwal.forEach((item, index) => {
+                html += `
+                    <button onclick="fetchStudentsForAttendance('${item.kelas}', '${item.mapel}')" style="text-align: left; padding: 12px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: background 0.2s;">
+                        <div>
+                            <div style="font-size: 13px; font-weight: 700; color: #0f172a;">📚 ${item.mapel} - Kelas ${item.kelas}</div>
+                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Hari: ${item.hari} | ⏰ ${item.jamMulai} - ${item.jamSelesai}</div>
+                        </div>
+                        <span style="font-size: 12px; font-weight: 600; color: #2563eb;">Pilih &rsaquo;</span>
+                    </button>
+                `;
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+
+        } else {
+            container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal memuat data: ${data.message}</div>`;
+        }
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal terhubung ke server!</div>`;
+    }
+}
+
+// 2. Ambil Daftar Siswa Berdasarkan Kelas yang Dipilih
+async function fetchStudentsForAttendance(kelas, mapel) {
+    const token = localStorage.getItem("token");
+    const container = document.getElementById("content-absensi-mapel");
+
+    container.innerHTML = `<div style='text-align: center; padding: 20px; color: #64748b; font-size: 13px;'>⏳ Memuat data siswa Kelas ${kelas} (${mapel})...</div>`;
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "get_students_by_class", token: token, kelas: kelas })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+            const students = data.students;
+
+            if (!students || students.length === 0) {
+                container.innerHTML = `
+                    <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 20px; text-align: center;">
+                        <p style="font-size: 13px; color: #64748b; margin-bottom: 12px;">Tidak ada siswa aktif ditemukan di kelas ${kelas}.</p>
+                        <button onclick="loadAbsensiMapel()" style="padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">← Kembali</button>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `
+                <div style="background: #ffffff; border-radius: 10px; border: 1px solid #e2e8f0; padding: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <div>
+                            <div style="font-size: 14px; font-weight: 700; color: #1e293b;">Presensi: ${mapel}</div>
+                            <div style="font-size: 12px; color: #64748b;">Kelas: ${kelas} (${students.length} Siswa)</div>
+                        </div>
+                        <button onclick="loadAbsensiMapel()" style="padding: 6px 10px; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 11px; cursor: pointer;">Ganti Kelas</button>
+                    </div>
+
+                    <div style="max-height: 400px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;" id="student-list-container">
+            `;
+
+            students.forEach((s, idx) => {
+                html += `
+                    <div class="student-row" data-nis="${s.nis}" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; gap: 10px;">
+                        <div>
+                            <div style="font-size: 13px; font-weight: 600; color: #0f172a;">${idx + 1}. ${s.nama}</div>
+                            <div style="font-size: 11px; color: #64748b;">NIS: ${s.nis}</div>
+                        </div>
+                        <select class="status-absen-select" data-nis="${s.nis}" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; background: white; font-weight: 600; color: #1e293b;">
+                            <option value="Hadir" selected>Hadir</option>
+                            <option value="Sakit">Sakit</option>
+                            <option value="Izin">Izin</option>
+                            <option value="Alpha">Alpha</option>
+                        </select>
+                    </div>
+                `;
+            });
+
+            html += `
+                    </div>
+                    <button onclick="submitAbsensiMapel('${mapel}')" style="width: 100%; padding: 12px; background: #2563eb; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px;">💾 Simpan Absensi ${mapel}</button>
+                </div>
+            `;
+
+            container.innerHTML = html;
+
+        } else {
+            container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal memuat siswa: ${data.message}</div>`;
+        }
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div style="color: #dc2626; font-size: 13px; padding: 10px;">❌ Gagal terhubung ke server!</div>`;
+    }
+}
+
+// 3. Kirim Data Absensi ke Server Google Apps Script
+async function submitAbsensiMapel(mataPelajaran) {
+    const token = localStorage.getItem("token");
+    const rows = document.querySelectorAll(".student-row");
+    let dataAbsensiList = [];
+
+    rows.forEach(row => {
+        const nis = row.getAttribute("data-nis");
+        const statusSelect = row.querySelector(".status-absen-select");
+        const status = statusSelect ? statusSelect.value : "Hadir";
+
+        dataAbsensiList.push({
+            nis: nis,
+            status: status
+        });
+    });
+
+    const container = document.getElementById("content-absensi-mapel");
+    container.innerHTML = `<div style='text-align: center; padding: 20px; color: #64748b; font-size: 13px;'>⏳ Menyimpan absensi ke database...</div>`;
+
+    try {
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({
+                action: "absensi_mapel",
+                token: token,
+                mataPelajaran: mataPelajaran,
+                dataAbsensiList: dataAbsensiList
+            })
+        });
+
+        const data = await res.json();
+
+        if (data.status === "success") {
+            container.innerHTML = `
+                <div style="background: #ffffff; border-radius: 10px; border: 1px solid #bbf7d0; padding: 24px; text-align: center;">
+                    <div style="font-size: 28px; margin-bottom: 8px;">✅</div>
+                    <div style="font-size: 14px; font-weight: 700; color: #166534; margin-bottom: 4px;">Berhasil Disimpan!</div>
+                    <p style="font-size: 12px; color: #15803d; margin-bottom: 16px;">${data.message}</p>
+                    <button onclick="loadAbsensiMapel()" style="padding: 8px 16px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 12px;">Kembali ke Daftar Kelas</button>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <div style="background: #ffffff; border-radius: 10px; border: 1px solid #fecaca; padding: 20px; text-align: center;">
+                    <div style="font-size: 14px; font-weight: 700; color: #991b1b; margin-bottom: 4px;">Gagal Menyimpan</div>
+                    <p style="font-size: 12px; color: #b91c1c; margin-bottom: 12px;">${data.message}</p>
+                    <button onclick="loadAbsensiMapel()" style="padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">← Kembali</button>
+                </div>
+            `;
+        }
+    } catch (err) {
+        console.error(err);
+        container.innerHTML = `
+            <div style="background: #ffffff; border-radius: 10px; border: 1px solid #fecaca; padding: 20px; text-align: center;">
+                <p style="font-size: 12px; color: #b91c1c; margin-bottom: 12px;">Gagal terhubung ke server saat menyimpan absensi.</p>
+                <button onclick="loadAbsensiMapel()" style="padding: 8px 14px; background: #2563eb; color: white; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">← Kembali</button>
+            </div>
+        `;
+    }
+}
 async function handleLogoutGuru() {
     const token = localStorage.getItem("token");
     
